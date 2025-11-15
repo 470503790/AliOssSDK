@@ -82,6 +82,8 @@ When you prefer simpler entry points, `IOssClient` exposes typed helpers such as
 
 Common end-to-end scenarios—including listing buckets, uploading objects, downloading objects, and deleting objects—are documented with both sync and async snippets in [`docs/usage.md`](docs/usage.md). The repository also tracks parity with Aliyun's official "按功能列出的操作" catalog in [`docs/operation-coverage.md`](docs/operation-coverage.md) so it is easy to spot which APIs still need contributions.
 
+> **WinForms/WPF heads-up**: synchronous helpers internally call `GetAwaiter().GetResult()` to turn the async pipeline into a blocking flow. This keeps the calling thread busy until the HTTP request completes; invoking those methods on the UI thread (for example inside a WinForms `Click` handler) will block the message pump and manifest as a frozen window. Desktop apps should prefer `await client.ExecuteAsync(...)`, `await client.ListBucketsAsync(...)`, etc., and either mark event handlers as `async void` or move blocking work to a background thread via `Task.Run`.
+
 ## Error handling
 
 Every HTTP call flows through `OssHttpClient`. When OSS returns a non-success status code, the client throws an `AliOssSdk.Http.OssRequestException` that contains the status code, `x-oss-request-id`, headers, and the response body (if available). You can capture the exception in both async and sync workflows to inspect these details:

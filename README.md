@@ -85,6 +85,8 @@ var response = client.Execute(listBuckets);
 
 完整的端到端场景（列举 Bucket、上传/下载对象、删除对象等）在 [中文使用指南](docs/usage.zh-CN.md) 与 [English guide](docs/usage.md) 中提供同步与异步示例。
 
+> **WinForms/WPF 注意**：同步方法内部会调用 `GetAwaiter().GetResult()` 将异步请求阻塞为同步流程。该实现会占用调用线程直到 HTTP 完成，如果在 UI 线程（如 WinForms `Click` 事件）中调用，将直接阻塞消息泵，表现为“界面假死”。桌面应用应优先使用 `await client.ExecuteAsync(...)` / `await client.ListBucketsAsync(...)` 等异步 API，并将事件处理程序声明为 `async void` 或通过 `Task.Run` 在后台线程执行耗时同步代码。
+
 ## 错误处理
 
 所有 HTTP 调用都会经过 `OssHttpClient`。当 OSS 返回非 2xx 状态码时，客户端会抛出 `AliOssSdk.Http.OssRequestException`，其中包含 HTTP 状态码、`x-oss-request-id`、响应头以及（若存在）响应体。可以在同步/异步场景中捕获该异常并读取详细信息：
