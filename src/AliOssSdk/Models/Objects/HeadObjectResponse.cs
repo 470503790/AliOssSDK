@@ -6,16 +6,16 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class HeadObjectResponse
     {
-        public HttpStatusCode StatusCode { get; init; }
+        public HttpStatusCode StatusCode { get; set; }
 
-        public long? ContentLength { get; init; }
+        public long? ContentLength { get; set; }
 
-        public string? ContentType { get; init; }
+        public string? ContentType { get; set; }
 
-        public DateTimeOffset? LastModified { get; init; }
+        public DateTimeOffset? LastModified { get; set; }
 
-        public string? ETag { get; init; }
+        public string? ETag { get; set; }
 
-        public IReadOnlyDictionary<string, string> Metadata { get; init; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public IReadOnlyDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     }
 }

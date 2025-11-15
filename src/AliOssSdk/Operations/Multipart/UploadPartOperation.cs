@@ -31,7 +31,7 @@ namespace AliOssSdk.Operations.Multipart
             return httpRequest;
         }
 
-        public UploadPartResponse ParseResponse(OssHttpResponse response) => new()
+        public UploadPartResponse ParseResponse(OssHttpResponse response) => new UploadPartResponse
         {
             StatusCode = response.StatusCode,
             ETag = response.Headers.TryGetValue("ETag", out var etag) ? etag : null

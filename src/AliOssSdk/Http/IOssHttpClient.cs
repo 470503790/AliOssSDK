@@ -7,6 +7,6 @@ namespace AliOssSdk.Http
     {
         OssHttpResponse Send(OssHttpRequest request);
 
-        Task<OssHttpResponse> SendAsync(OssHttpRequest request, CancellationToken cancellationToken = default);
+        Task<OssHttpResponse> SendAsync(OssHttpRequest request, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

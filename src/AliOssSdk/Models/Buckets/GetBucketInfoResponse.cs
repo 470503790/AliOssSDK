@@ -4,10 +4,10 @@ namespace AliOssSdk.Models.Buckets
 {
     public sealed class GetBucketInfoResponse
     {
-        public string? Name { get; init; }
+        public string? Name { get; set; }
 
-        public string? Location { get; init; }
+        public string? Location { get; set; }
 
-        public DateTimeOffset? CreationDate { get; init; }
+        public DateTimeOffset? CreationDate { get; set; }
     }
 }

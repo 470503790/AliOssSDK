@@ -4,8 +4,8 @@ namespace AliOssSdk.Models.Buckets
 {
     public sealed class CreateBucketResponse
     {
-        public HttpStatusCode StatusCode { get; init; }
+        public HttpStatusCode StatusCode { get; set; }
 
-        public string? Location { get; init; }
+        public string? Location { get; set; }
     }
 }

@@ -33,9 +33,11 @@ namespace AliOssSdk.Security
                 request.ResourcePath
             });
 
-            using var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(configuration.AccessKeySecret));
-            var signature = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(stringToSign)));
-            request.Headers["Authorization"] = $"OSS {configuration.AccessKeyId}:{signature}";
+            using (var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(configuration.AccessKeySecret)))
+            {
+                var signature = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(stringToSign)));
+                request.Headers["Authorization"] = $"OSS {configuration.AccessKeyId}:{signature}";
+            }
         }
     }
 }

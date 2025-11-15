@@ -4,6 +4,6 @@ namespace AliOssSdk.Models.Buckets
 {
     public sealed class PutBucketAclResponse
     {
-        public HttpStatusCode StatusCode { get; init; }
+        public HttpStatusCode StatusCode { get; set; }
     }
 }

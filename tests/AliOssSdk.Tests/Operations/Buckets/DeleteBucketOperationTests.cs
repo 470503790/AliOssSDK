@@ -5,29 +5,31 @@ using AliOssSdk.Operations.Buckets;
 using Xunit;
 using AliOssSdk.Tests.Operations;
 
-namespace AliOssSdk.Tests.Operations.Buckets;
-
-public class DeleteBucketOperationTests
+namespace AliOssSdk.Tests.Operations.Buckets
 {
-    [Fact]
-    public void BuildRequest_TargetsBucket()
+
+    public class DeleteBucketOperationTests
     {
-        var operation = new DeleteBucketOperation(new DeleteBucketRequest("bucket"));
+        [Fact]
+        public void BuildRequest_TargetsBucket()
+        {
+            var operation = new DeleteBucketOperation(new DeleteBucketRequest("bucket"));
 
-        var result = operation.BuildRequest(OperationTestHelpers.CreateContext());
+            var result = operation.BuildRequest(OperationTestHelpers.CreateContext());
 
-        Assert.Equal(HttpMethod.Delete, result.Method);
-        Assert.Equal("/bucket", result.ResourcePath);
-    }
+            Assert.Equal(HttpMethod.Delete, result.Method);
+            Assert.Equal("/bucket", result.ResourcePath);
+        }
 
-    [Fact]
-    public void ParseResponse_ReturnsStatusCode()
-    {
-        var response = OperationTestHelpers.CreateResponse(string.Empty, HttpStatusCode.NoContent);
-        var operation = new DeleteBucketOperation(new DeleteBucketRequest("bucket"));
+        [Fact]
+        public void ParseResponse_ReturnsStatusCode()
+        {
+            var response = OperationTestHelpers.CreateResponse(string.Empty, HttpStatusCode.NoContent);
+            var operation = new DeleteBucketOperation(new DeleteBucketRequest("bucket"));
 
-        var result = operation.ParseResponse(response);
+            var result = operation.ParseResponse(response);
 
-        Assert.Equal(HttpStatusCode.NoContent, result.StatusCode);
+            Assert.Equal(HttpStatusCode.NoContent, result.StatusCode);
+        }
     }
 }

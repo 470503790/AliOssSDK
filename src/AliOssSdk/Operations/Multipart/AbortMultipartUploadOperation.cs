@@ -24,7 +24,7 @@ namespace AliOssSdk.Operations.Multipart
             return httpRequest;
         }
 
-        public AbortMultipartUploadResponse ParseResponse(OssHttpResponse response) => new()
+        public AbortMultipartUploadResponse ParseResponse(OssHttpResponse response) => new AbortMultipartUploadResponse
         {
             StatusCode = response.StatusCode
         };

@@ -4,46 +4,48 @@ using AliOssSdk.Operations.Buckets;
 using Xunit;
 using AliOssSdk.Tests.Operations;
 
-namespace AliOssSdk.Tests.Operations.Buckets;
-
-public class ListBucketsOperationTests
+namespace AliOssSdk.Tests.Operations.Buckets
 {
-    [Fact]
-    public void BuildRequest_AddsOptionalFilters()
+
+    public class ListBucketsOperationTests
     {
-        var request = new ListBucketsRequest
+        [Fact]
+        public void BuildRequest_AddsOptionalFilters()
         {
-            Prefix = "project-",
-            MaxKeys = 50
-        };
-        var operation = new ListBucketsOperation(request);
+            var request = new ListBucketsRequest
+            {
+                Prefix = "project-",
+                MaxKeys = 50
+            };
+            var operation = new ListBucketsOperation(request);
 
-        var result = operation.BuildRequest(OperationTestHelpers.CreateContext());
+            var result = operation.BuildRequest(OperationTestHelpers.CreateContext());
 
-        Assert.Equal(HttpMethod.Get, result.Method);
-        Assert.Equal("/", result.ResourcePath);
-        Assert.Equal("project-", result.QueryParameters["prefix"]);
-        Assert.Equal("50", result.QueryParameters["max-keys"]);
-    }
+            Assert.Equal(HttpMethod.Get, result.Method);
+            Assert.Equal("/", result.ResourcePath);
+            Assert.Equal("project-", result.QueryParameters["prefix"]);
+            Assert.Equal("50", result.QueryParameters["max-keys"]);
+        }
 
-    [Fact]
-    public void ParseResponse_ReadsBucketNamesAndMarker()
-    {
-        const string payload = """
-<ListAllMyBucketsResult>
-  <Buckets>
-    <Bucket><Name>first</Name></Bucket>
-    <Bucket><Name>second</Name></Bucket>
-  </Buckets>
-  <NextMarker>next-token</NextMarker>
-</ListAllMyBucketsResult>
-""";
-        var response = OperationTestHelpers.CreateResponse(payload);
-        var operation = new ListBucketsOperation(new ListBucketsRequest());
+        [Fact]
+        public void ParseResponse_ReadsBucketNamesAndMarker()
+        {
+            const string payload = """
+    <ListAllMyBucketsResult>
+      <Buckets>
+        <Bucket><Name>first</Name></Bucket>
+        <Bucket><Name>second</Name></Bucket>
+      </Buckets>
+      <NextMarker>next-token</NextMarker>
+    </ListAllMyBucketsResult>
+    """;
+            var response = OperationTestHelpers.CreateResponse(payload);
+            var operation = new ListBucketsOperation(new ListBucketsRequest());
 
-        var result = operation.ParseResponse(response);
+            var result = operation.ParseResponse(response);
 
-        Assert.Equal(new[] { "first", "second" }, result.Buckets);
-        Assert.Equal("next-token", result.NextMarker);
+            Assert.Equal(new[] { "first", "second" }, result.Buckets);
+            Assert.Equal("next-token", result.NextMarker);
+        }
     }
 }

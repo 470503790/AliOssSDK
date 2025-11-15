@@ -18,6 +18,6 @@ namespace AliOssSdk.Models.Objects
 
         public Stream Content { get; }
 
-        public string? ContentType { get; init; }
+        public string? ContentType { get; set; }
     }
 }

@@ -19,6 +19,6 @@ namespace AliOssSdk.Http
 
         public IReadOnlyDictionary<string, string> Headers { get; }
 
-        public string? RequestId { get; init; }
+        public string? RequestId { get; set; }
     }
 }

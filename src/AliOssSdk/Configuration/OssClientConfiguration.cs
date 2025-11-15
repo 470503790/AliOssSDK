@@ -23,23 +23,26 @@ namespace AliOssSdk.Configuration
 
         public string AccessKeySecret { get; }
 
-        public TimeSpan Timeout { get; init; } = TimeSpan.FromSeconds(100);
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(100);
 
-        public string? DefaultRegion { get; init; }
+        public string? DefaultRegion { get; set; }
 
-        public ILogger? Logger { get; init; }
+        public ILogger? Logger { get; set; }
 
-        public IOssHttpClient? HttpClient { get; init; }
+        public IOssHttpClient? HttpClient { get; set; }
 
-        public IOssRequestSigner? RequestSigner { get; init; }
+        public IOssRequestSigner? RequestSigner { get; set; }
 
-        public OssClientConfiguration WithTimeout(TimeSpan timeout) => new(Endpoint, AccessKeyId, AccessKeySecret)
+        public OssClientConfiguration WithTimeout(TimeSpan timeout)
         {
-            Timeout = timeout,
-            DefaultRegion = DefaultRegion,
-            Logger = Logger,
-            HttpClient = HttpClient,
-            RequestSigner = RequestSigner
-        };
+            return new OssClientConfiguration(Endpoint, AccessKeyId, AccessKeySecret)
+            {
+                Timeout = timeout,
+                DefaultRegion = this.DefaultRegion,
+                Logger = this.Logger,
+                HttpClient = this.HttpClient,
+                RequestSigner = this.RequestSigner
+            };
+        }
     }
 }

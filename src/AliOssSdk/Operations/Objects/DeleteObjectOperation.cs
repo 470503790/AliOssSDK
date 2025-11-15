@@ -22,7 +22,7 @@ namespace AliOssSdk.Operations.Objects
             return new OssHttpRequest(HttpMethod.Delete, resource);
         }
 
-        public DeleteObjectResponse ParseResponse(OssHttpResponse response) => new()
+        public DeleteObjectResponse ParseResponse(OssHttpResponse response) => new DeleteObjectResponse
         {
             StatusCode = response.StatusCode
         };

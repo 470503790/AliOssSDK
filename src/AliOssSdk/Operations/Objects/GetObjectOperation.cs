@@ -22,7 +22,7 @@ namespace AliOssSdk.Operations.Objects
             return new OssHttpRequest(HttpMethod.Get, resource);
         }
 
-        public GetObjectResponse ParseResponse(OssHttpResponse response) => new()
+        public GetObjectResponse ParseResponse(OssHttpResponse response) => new GetObjectResponse
         {
             StatusCode = response.StatusCode,
             Content = response.ContentStream,

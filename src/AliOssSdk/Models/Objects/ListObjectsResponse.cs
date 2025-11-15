@@ -4,10 +4,10 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class ListObjectsResponse
     {
-        public IReadOnlyCollection<ObjectSummary> Objects { get; init; } = new List<ObjectSummary>();
+        public IReadOnlyCollection<ObjectSummary> Objects { get; set; } = new List<ObjectSummary>();
 
-        public string? NextMarker { get; init; }
+        public string? NextMarker { get; set; }
 
-        public bool IsTruncated { get; init; }
+        public bool IsTruncated { get; set; }
     }
 }

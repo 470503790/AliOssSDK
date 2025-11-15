@@ -26,7 +26,7 @@ namespace AliOssSdk.Operations.Objects
             };
         }
 
-        public PutObjectResponse ParseResponse(OssHttpResponse response) => new()
+        public PutObjectResponse ParseResponse(OssHttpResponse response) => new PutObjectResponse
         {
             StatusCode = response.StatusCode,
             ETag = response.Headers.TryGetValue("ETag", out var etag) ? etag : null

@@ -36,15 +36,15 @@ namespace AliOssSdk.Logging
 
         public static OssLogEvent RequestStart(string operationName, Guid invocationId, int attempt,
             IReadOnlyDictionary<string, object?> data) =>
-            new(OssLogEventType.RequestStart, operationName, invocationId, attempt, data, null);
+            new OssLogEvent(OssLogEventType.RequestStart, operationName, invocationId, attempt, data, null);
 
         public static OssLogEvent RequestHeaders(string operationName, Guid invocationId, int attempt,
             IReadOnlyDictionary<string, object?> data) =>
-            new(OssLogEventType.RequestHeaders, operationName, invocationId, attempt, data, null);
+            new OssLogEvent(OssLogEventType.RequestHeaders, operationName, invocationId, attempt, data, null);
 
         public static OssLogEvent RequestBody(string operationName, Guid invocationId, int attempt,
             IReadOnlyDictionary<string, object?> data) =>
-            new(OssLogEventType.RequestBody, operationName, invocationId, attempt, data, null);
+            new OssLogEvent(OssLogEventType.RequestBody, operationName, invocationId, attempt, data, null);
 
         public static OssLogEvent Retry(string operationName, Guid invocationId, int attempt, bool isRetry,
             Exception? lastException)
@@ -55,15 +55,15 @@ namespace AliOssSdk.Logging
                 ["IsRetry"] = isRetry
             };
 
-            return new(OssLogEventType.Retry, operationName, invocationId, attempt, payload, lastException);
+            return new OssLogEvent(OssLogEventType.Retry, operationName, invocationId, attempt, payload, lastException);
         }
 
         public static OssLogEvent Response(string operationName, Guid invocationId, int attempt,
             IReadOnlyDictionary<string, object?> data) =>
-            new(OssLogEventType.Response, operationName, invocationId, attempt, data, null);
+            new OssLogEvent(OssLogEventType.Response, operationName, invocationId, attempt, data, null);
 
         public static OssLogEvent Error(string operationName, Guid invocationId, int attempt,
             IReadOnlyDictionary<string, object?>? data, Exception exception) =>
-            new(OssLogEventType.Error, operationName, invocationId, attempt, data, exception);
+            new OssLogEvent(OssLogEventType.Error, operationName, invocationId, attempt, data, exception);
     }
 }
