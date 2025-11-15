@@ -132,7 +132,9 @@ public sealed class SerilogLogger : ILogger
 }
 ```
 
-Set `configuration.Logger = new SerilogLogger(Log.Logger);` to enable your custom logging pipeline.
+Set `configuration.Logger = new SerilogLogger(Log.Logger);` to enable your custom logging pipeline. You can also register a
+process-wide default via `OssLoggerRegistry.RegisterLogger(new SerilogLogger(Log.Logger));` so that every `OssClient`
+automatically picks it up when no logger is specified in `OssClientConfiguration`.
 
 ## Design and extensibility
 

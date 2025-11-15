@@ -163,6 +163,8 @@ public sealed class SerilogLogger : ILogger
 ```
 
 在配置中设置 `configuration.Logger = new SerilogLogger(Log.Logger);` 即可启用自定义日志管道。
+如果想全局复用某个日志器，可调用 `OssLoggerRegistry.RegisterLogger(new SerilogLogger(Log.Logger));` 注册默认值，
+此后所有未显式配置日志器的 `OssClient` 实例都会自动使用它。
 
 ## 设计与可扩展性
 

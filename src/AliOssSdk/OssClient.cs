@@ -31,13 +31,13 @@ namespace AliOssSdk
                 configuration ?? throw new ArgumentNullException(nameof(configuration)),
                 configuration.HttpClient ?? new OssHttpClient(configuration),
                 configuration.RequestSigner ?? new OssRequestSignerV4(),
-                configuration.Logger ?? NullLogger.Instance,
+                configuration.Logger ?? OssLoggerRegistry.Logger,
                 ownsHttpClient: configuration.HttpClient == null)
         {
         }
 
         public OssClient(OssClientConfiguration configuration, IOssHttpClient httpClient, IOssRequestSigner requestSigner, bool ownsHttpClient = false)
-            : this(configuration, httpClient, requestSigner, NullLogger.Instance, ownsHttpClient)
+            : this(configuration, httpClient, requestSigner, OssLoggerRegistry.Logger, ownsHttpClient)
         {
         }
 
@@ -46,7 +46,7 @@ namespace AliOssSdk
             _context = new OssOperationContext(configuration ?? throw new ArgumentNullException(nameof(configuration)));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _requestSigner = requestSigner ?? throw new ArgumentNullException(nameof(requestSigner));
-            _logger = logger ?? NullLogger.Instance;
+            _logger = logger ?? OssLoggerRegistry.Logger;
             _ownsHttpClient = ownsHttpClient;
         }
 
