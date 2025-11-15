@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AliOssSdk.Models.Buckets;
@@ -47,6 +48,10 @@ namespace AliOssSdk
 
         Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken cancellationToken = default(CancellationToken));
 
+        PutObjectResponse PutObjectFromFile(string? bucketName, string objectKey, string filePath, string? contentType = null);
+
+        Task<PutObjectResponse> PutObjectFromFileAsync(string? bucketName, string objectKey, string filePath, string? contentType = null, CancellationToken cancellationToken = default(CancellationToken));
+
         GetObjectResponse GetObject(GetObjectRequest request);
 
         Task<GetObjectResponse> GetObjectAsync(GetObjectRequest request, CancellationToken cancellationToken = default(CancellationToken));
@@ -66,6 +71,10 @@ namespace AliOssSdk
         CopyObjectResponse CopyObject(CopyObjectRequest request);
 
         Task<CopyObjectResponse> CopyObjectAsync(CopyObjectRequest request, CancellationToken cancellationToken = default(CancellationToken));
+
+        void MoveObjects(IEnumerable<ObjectMoveDescriptor> descriptors);
+
+        Task MoveObjectsAsync(IEnumerable<ObjectMoveDescriptor> descriptors, CancellationToken cancellationToken = default(CancellationToken));
         #endregion
 
         #region Multipart helpers

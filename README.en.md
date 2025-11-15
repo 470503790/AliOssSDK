@@ -81,6 +81,23 @@ var response = client.Execute(listBuckets);
 
 When you prefer simpler entry points, `IOssClient` exposes typed helpers such as `GetObjectAsync`, `ListObjectsAsync`, and `InitiateMultipartUploadAsync` (plus their synchronous counterparts). These methods internally create the corresponding operations and reuse the same execution pipeline, so sync and async behavior remains consistent.
 
+### Convenience helpers
+
+In addition to the raw operations, the SDK now includes a couple of opinionated shortcuts:
+
+- `PutObjectFromFile` / `PutObjectFromFileAsync`: upload by simply providing a file path. The client opens the stream for you and delegates to `PutObject`.
+- `MoveObjects` / `MoveObjectsAsync`: move objects in batches by chaining `CopyObject` and `DeleteObject` calls under the hood.
+
+```csharp
+await client.PutObjectFromFileAsync("my-demo-bucket", "images/logo.png", "./logo.png", "image/png");
+
+await client.MoveObjectsAsync(new[]
+{
+    new ObjectMoveDescriptor("my-demo-bucket", "raw/video.mov", "my-archive", "2024/video.mov"),
+    new ObjectMoveDescriptor("my-demo-bucket", "tmp/report.pdf", "my-demo-bucket", "reports/2024/report.pdf")
+});
+```
+
 Common end-to-end scenarios—including listing buckets, uploading objects, downloading objects, and deleting objects—are documented with both sync and async snippets in [`docs/usage.md`](docs/usage.md). The repository also tracks parity with Aliyun's official "按功能列出的操作" catalog in [`docs/operation-coverage.md`](docs/operation-coverage.md) so it is easy to spot which APIs still need contributions.
 
 ## Error handling
