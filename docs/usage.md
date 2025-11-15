@@ -127,6 +127,122 @@ await client.ExecuteAsync(delete);
 client.Execute(delete);
 ```
 
+## Listing objects within a bucket
+
+```csharp
+var listObjectsRequest = new ListObjectsRequest("my-demo-bucket")
+{
+    Prefix = "images/",
+    MaxKeys = 100
+};
+
+var operation = await client.ListObjectsAsync(listObjectsRequest);
+foreach (var obj in operation.Objects)
+{
+    Console.WriteLine($"{obj.Key} ({obj.Size} bytes)");
+}
+```
+
+**Sync**
+
+```csharp
+var objects = client.ListObjects(listObjectsRequest);
+```
+
+## Retrieving bucket metadata and ACL
+
+```csharp
+var bucketInfo = await client.GetBucketInfoAsync(new GetBucketInfoRequest("my-demo-bucket"));
+Console.WriteLine($"{bucketInfo.Name} lives in {bucketInfo.Location}");
+
+var acl = await client.GetBucketAclAsync(new GetBucketAclRequest("my-demo-bucket"));
+Console.WriteLine($"Owner: {acl.OwnerDisplayName}, Grant: {acl.Grant}");
+```
+
+**Sync**
+
+```csharp
+var bucketInfoSync = client.GetBucketInfo(new GetBucketInfoRequest("my-demo-bucket"));
+var aclSync = client.GetBucketAcl(new GetBucketAclRequest("my-demo-bucket"));
+```
+
+## Copying objects between locations
+
+```csharp
+var copy = await client.CopyObjectAsync(new CopyObjectRequest(
+    sourceBucket: "my-demo-bucket",
+    sourceKey: "images/logo.png",
+    destinationBucket: "my-demo-bucket",
+    destinationKey: "archives/logo-backup.png"));
+
+Console.WriteLine($"Copied object with ETag {copy.ETag}");
+```
+
+**Sync**
+
+```csharp
+var copyResult = client.CopyObject(new CopyObjectRequest(
+    "my-demo-bucket",
+    "images/logo.png",
+    "my-demo-bucket",
+    "archives/logo-backup.png"));
+```
+
+## Checking object metadata (HEAD)
+
+```csharp
+var headResponse = await client.HeadObjectAsync(new HeadObjectRequest("my-demo-bucket", "images/logo.png"));
+Console.WriteLine($"Content-Length: {headResponse.ContentLength}, Content-Type: {headResponse.ContentType}");
+```
+
+**Sync**
+
+```csharp
+var metadata = client.HeadObject(new HeadObjectRequest("my-demo-bucket", "images/logo.png"));
+```
+
+## Multipart uploads
+
+```csharp
+var initiateResponse = await client.InitiateMultipartUploadAsync(new InitiateMultipartUploadRequest("my-demo-bucket", "videos/demo.mp4"));
+
+var uploadedParts = new List<CompleteMultipartUploadRequest.UploadedPart>();
+using (var part1 = File.OpenRead("part1.bin"))
+{
+    var part1Response = await client.UploadPartAsync(new UploadPartRequest("my-demo-bucket", "videos/demo.mp4", initiateResponse.UploadId!, 1, part1));
+    uploadedParts.Add(new CompleteMultipartUploadRequest.UploadedPart(1, part1Response.ETag!));
+}
+
+using (var part2 = File.OpenRead("part2.bin"))
+{
+    var part2Response = await client.UploadPartAsync(new UploadPartRequest("my-demo-bucket", "videos/demo.mp4", initiateResponse.UploadId!, 2, part2));
+    uploadedParts.Add(new CompleteMultipartUploadRequest.UploadedPart(2, part2Response.ETag!));
+}
+
+var completeResponse = await client.CompleteMultipartUploadAsync(new CompleteMultipartUploadRequest(
+    "my-demo-bucket",
+    "videos/demo.mp4",
+    initiateResponse.UploadId!,
+    uploadedParts));
+```
+
+**Sync**
+
+```csharp
+var initiate = client.InitiateMultipartUpload(new InitiateMultipartUploadRequest("my-demo-bucket", "videos/demo.mp4"));
+
+var parts = new List<CompleteMultipartUploadRequest.UploadedPart>();
+using (var part = File.OpenRead("part1.bin"))
+{
+    var result = client.UploadPart(new UploadPartRequest("my-demo-bucket", "videos/demo.mp4", initiate.UploadId!, 1, part));
+    parts.Add(new CompleteMultipartUploadRequest.UploadedPart(1, result.ETag!));
+}
+
+var completed = client.CompleteMultipartUpload(new CompleteMultipartUploadRequest("my-demo-bucket", "videos/demo.mp4", initiate.UploadId!, parts));
+```
+
+Call `AbortMultipartUpload` or `AbortMultipartUploadAsync` with the same bucket/key/uploadId if you need to cancel an unfinished upload.
+
 ## Error handling
 
 Every operation throws `OssRequestException` when the service returns a failure status code. Wrap executions with try/catch if you need to inspect the response body or status code.
