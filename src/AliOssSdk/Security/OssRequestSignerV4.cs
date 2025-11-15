@@ -22,7 +22,7 @@ namespace AliOssSdk.Security
         {
         }
 
-        internal OssRequestSignerV4(Func<DateTimeOffset> clock)
+        public OssRequestSignerV4(Func<DateTimeOffset> clock)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
