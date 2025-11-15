@@ -4,18 +4,18 @@ namespace AliOssSdk.Models.Buckets
 {
     public sealed class PutBucketAclRequest
     {
-        public PutBucketAclRequest(string bucketName, BucketAcl acl)
+        public PutBucketAclRequest(string? bucketName, BucketAcl acl)
         {
-            if (string.IsNullOrWhiteSpace(bucketName))
+            if (bucketName != null && string.IsNullOrWhiteSpace(bucketName))
             {
-                throw new ArgumentException("Bucket name is required", nameof(bucketName));
+                throw new ArgumentException("Bucket name cannot be empty", nameof(bucketName));
             }
 
             BucketName = bucketName;
             Acl = acl;
         }
 
-        public string BucketName { get; }
+        public string? BucketName { get; }
 
         public BucketAcl Acl { get; }
     }

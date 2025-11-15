@@ -5,14 +5,19 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class PutObjectRequest
     {
-        public PutObjectRequest(string bucketName, string objectKey, Stream content)
+        public PutObjectRequest(string? bucketName, string objectKey, Stream content)
         {
-            BucketName = bucketName ?? throw new ArgumentNullException(nameof(bucketName));
-            ObjectKey = objectKey ?? throw new ArgumentNullException(nameof(objectKey));
+            if (string.IsNullOrWhiteSpace(objectKey))
+            {
+                throw new ArgumentException("Object key is required", nameof(objectKey));
+            }
+
+            BucketName = bucketName;
+            ObjectKey = objectKey;
             Content = content ?? throw new ArgumentNullException(nameof(content));
         }
 
-        public string BucketName { get; }
+        public string? BucketName { get; }
 
         public string ObjectKey { get; }
 

@@ -1,3 +1,4 @@
+using System;
 using AliOssSdk.Configuration;
 
 namespace AliOssSdk.Operations
@@ -13,5 +14,21 @@ namespace AliOssSdk.Operations
         }
 
         public OssClientConfiguration Configuration { get; }
+
+        public string ResolveBucketName(string? bucketName)
+        {
+            if (!string.IsNullOrWhiteSpace(bucketName))
+            {
+                return bucketName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(Configuration.DefaultBucketName))
+            {
+                return Configuration.DefaultBucketName!;
+            }
+
+            throw new InvalidOperationException(
+                "Bucket name is required. Provide it on the request or set OssClientConfiguration.DefaultBucketName.");
+        }
     }
 }
