@@ -30,7 +30,7 @@ namespace AliOssSdk
             : this(
                 configuration ?? throw new ArgumentNullException(nameof(configuration)),
                 configuration.HttpClient ?? new OssHttpClient(configuration),
-                configuration.RequestSigner ?? new HmacSha1RequestSigner(),
+                configuration.RequestSigner ?? new OssRequestSignerV4(),
                 configuration.Logger ?? NullLogger.Instance,
                 ownsHttpClient: configuration.HttpClient == null)
         {

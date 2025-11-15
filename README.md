@@ -54,16 +54,18 @@ var configuration = new OssClientConfiguration(
     "<access-key-id>",
     "<access-key-secret>")
 {
-    DefaultRegion = "oss-cn-hangzhou",
+    DefaultRegion = "cn-hangzhou",
     Logger = new ConsoleLogger(),          // 可选
     HttpClient = new DefaultOssHttpClient(),// 可选自定义传输层
-    RequestSigner = new HmacSha1RequestSigner() // 可选自定义签名器
+    RequestSigner = new OssRequestSignerV4()    // 可选自定义签名器（SigV4）
 };
 
 var client = new OssClient(configuration);
 ```
 
 配置同样可以从 `app.config`/`web.config` 绑定，或交由 IOC 容器注入。最少需要提供 Endpoint 与凭证。
+
+> **签名算法升级**：SDK 现默认使用 V4 (`OSS4-HMAC-SHA256`) 签名。若 Endpoint 中包含地域（如 `https://oss-cn-hangzhou.aliyuncs.com`），签名器会自动解析；若使用自定义域名，请显式设置 `DefaultRegion`（例如 `cn-hangzhou`）以生成正确的 Credential Scope。
 
 ## 使用概览
 

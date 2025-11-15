@@ -51,16 +51,18 @@ var configuration = new OssClientConfiguration(
     "<access-key-id>",
     "<access-key-secret>")
 {
-    DefaultRegion = "oss-cn-hangzhou",
+    DefaultRegion = "cn-hangzhou",
     Logger = new ConsoleLogger(),          // optional
     HttpClient = new DefaultOssHttpClient(),// optional custom transport
-    RequestSigner = new HmacSha1RequestSigner() // optional custom signer
+    RequestSigner = new OssRequestSignerV4()    // optional custom signer (SigV4)
 };
 
 var client = new OssClient(configuration);
 ```
 
 Configuration can also be bound from `app.config`/`web.config` or an IOC container. At a minimum the endpoint and credentials must be provided.
+
+> **Signature Version 4** – Starting with this release the SDK signs every request with the V4 algorithm (`OSS4-HMAC-SHA256`). The signer automatically infers the region from endpoints such as `https://oss-cn-hangzhou.aliyuncs.com`. If you are using a custom domain, set `DefaultRegion` (e.g., `cn-hangzhou`) explicitly so that the credential scope can be calculated.
 
 ## Usage overview
 
