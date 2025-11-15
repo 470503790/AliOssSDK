@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text;
 using AliOssSdk.Configuration;
 
 namespace AliOssSdk.Http
@@ -79,7 +80,7 @@ namespace AliOssSdk.Http
                     if (stream.Length > 0)
                     {
                         stream.Position = 0;
-                        using (var reader = new StreamReader(stream, leaveOpen: true))
+                        using (var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true))
                         {
                             responseBody = await reader.ReadToEndAsync().ConfigureAwait(false);
                             stream.Position = 0;
