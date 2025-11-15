@@ -65,6 +65,33 @@ var client = new OssClient(configuration);
 
 配置同样可以从 `app.config`/`web.config` 绑定，或交由 IOC 容器注入。最少需要提供 Endpoint 与凭证。
 
+### 通过 JSON/环境变量加载配置
+
+`AlibabaOssConfig` 提供了一个可以与 JSON 文件或环境变量绑定的 POCO，方便在部署环境中集中管理访问密钥。
+
+```json
+{
+  "endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
+  "region": "cn-hangzhou",
+  "bucket": "demo",
+  "accessKeyId": "<key>",
+  "accessKeySecret": "<secret>",
+  "sign_duration_second": 3600
+}
+```
+
+可以在启动代码中读取该文件，并允许使用 `ALI_OSS_` 前缀的环境变量覆写同名字段：
+
+```csharp
+var alibabaConfig = AlibabaOssConfig
+    .FromJsonFile("osssettings.json")
+    .ApplyEnvironmentOverrides();
+
+var client = new OssClient(alibabaConfig.ToOssClientConfiguration());
+```
+
+上例中如果同时设置了 `ALI_OSS_ACCESS_KEY_SECRET` 等环境变量，将优先生效，便于区分开发/生产环境。
+
 > **签名算法升级**：SDK 现默认使用 V4 (`OSS4-HMAC-SHA256`) 签名。若 Endpoint 中包含地域（如 `https://oss-cn-hangzhou.aliyuncs.com`），签名器会自动解析；若使用自定义域名，请显式设置 `DefaultRegion`（例如 `cn-hangzhou`）以生成正确的 Credential Scope。
 
 ## 使用概览
