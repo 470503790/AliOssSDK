@@ -270,7 +270,7 @@ var configuration = new OssClientConfiguration(endpoint, accessKeyId, accessKeyS
 ```csharp
 services.AddSingleton(new OssClientConfiguration(endpoint, keyId, keySecret));
 services.AddSingleton<IOssHttpClient, HttpClientAdapter>();
-services.AddSingleton<IOssRequestSigner, HmacSha1RequestSigner>();
+services.AddSingleton<IOssRequestSigner, OssRequestSignerV4>();
 services.AddSingleton<IOssClient, OssClient>();
 ```
 
