@@ -16,7 +16,7 @@ namespace AliOssSdk.Http
             StatusCode = response.StatusCode;
             RequestId = response.RequestId;
             ResponseBody = responseBody;
-            ResponseHeaders = new Dictionary<string, string>(response.Headers, StringComparer.OrdinalIgnoreCase);
+            ResponseHeaders = CreateResponseHeaders(response.Headers);
         }
 
         public HttpStatusCode StatusCode { get; }
@@ -28,6 +28,22 @@ namespace AliOssSdk.Http
         public IReadOnlyDictionary<string, string> ResponseHeaders { get; }
 
         public OssHttpResponse Response { get; }
+
+        private static IReadOnlyDictionary<string, string> CreateResponseHeaders(IReadOnlyDictionary<string, string> headers)
+        {
+            if (headers == null)
+            {
+                throw new ArgumentNullException(nameof(headers));
+            }
+
+            var dictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var header in headers)
+            {
+                dictionary[header.Key] = header.Value;
+            }
+
+            return dictionary;
+        }
 
         private static string CreateMessage(OssHttpResponse response, string? responseBody)
         {
