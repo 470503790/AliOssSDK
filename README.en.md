@@ -77,6 +77,8 @@ Configuration can also be bound from `app.config`/`web.config` or an IOC contain
 }
 ```
 
+> When the `endpoint` field is missing or empty, the SDK falls back to the default public domain `https://oss-cn-hangzhou.aliyuncs.com`.
+
 ```csharp
 var alibabaConfig = AlibabaOssConfig
     .FromJsonFile("osssettings.json")

@@ -15,13 +15,15 @@ namespace AliOssSdk.Configuration
     {
         public const string DefaultEnvironmentPrefix = "ALI_OSS_";
 
+        public const string DefaultEndpoint = "https://oss-cn-hangzhou.aliyuncs.com";
+
         [DataMember(Name = "region", EmitDefaultValue = false)]
         public string? Region { get; set; }
 
         [DataMember(Name = "bucket", EmitDefaultValue = false)]
         public string? Bucket { get; set; }
 
-        [DataMember(Name = "endpoint", IsRequired = true)]
+        [DataMember(Name = "endpoint", EmitDefaultValue = false)]
         public string? Endpoint { get; set; }
 
         [DataMember(Name = "accessKeyId", IsRequired = true)]
@@ -79,11 +81,6 @@ namespace AliOssSdk.Configuration
 
         public OssClientConfiguration ToOssClientConfiguration()
         {
-            if (string.IsNullOrWhiteSpace(Endpoint))
-            {
-                throw new InvalidOperationException("Endpoint is required to build OssClientConfiguration.");
-            }
-
             if (string.IsNullOrWhiteSpace(AccessKeyId))
             {
                 throw new InvalidOperationException("AccessKeyId is required to build OssClientConfiguration.");
@@ -94,7 +91,11 @@ namespace AliOssSdk.Configuration
                 throw new InvalidOperationException("AccessKeySecret is required to build OssClientConfiguration.");
             }
 
-            var configuration = new OssClientConfiguration(new Uri(Endpoint), AccessKeyId, AccessKeySecret)
+            var endpoint = string.IsNullOrWhiteSpace(Endpoint)
+                ? new Uri(DefaultEndpoint)
+                : new Uri(Endpoint);
+
+            var configuration = new OssClientConfiguration(endpoint, AccessKeyId, AccessKeySecret)
             {
                 DefaultRegion = Region
             };
