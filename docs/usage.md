@@ -201,6 +201,33 @@ Console.WriteLine($"Content-Length: {headResponse.ContentLength}, Content-Type: 
 var metadata = client.HeadObject(new HeadObjectRequest("my-demo-bucket", "images/logo.png"));
 ```
 
+## Error handling with OssRequestException
+
+`OssHttpClient` throws `AliOssSdk.Http.OssRequestException` whenever OSS returns a non-success HTTP status code. The exception exposes the status code, headers, request ID, and the raw response body:
+
+```csharp
+using AliOssSdk.Http;
+
+try
+{
+    await client.ExecuteAsync(new DeleteObjectOperation(new DeleteObjectRequest("my-demo-bucket", "not-found.txt")));
+}
+catch (OssRequestException ex)
+{
+    Console.WriteLine($"Async failure {ex.StatusCode}, request ID {ex.RequestId}");
+    Console.WriteLine(ex.ResponseBody);
+}
+
+try
+{
+    client.Execute(new GetObjectOperation(new GetObjectRequest("my-demo-bucket", "not-found.txt")));
+}
+catch (OssRequestException ex)
+{
+    Console.WriteLine(string.Join("\n", ex.ResponseHeaders));
+}
+```
+
 ## Multipart uploads
 
 ```csharp

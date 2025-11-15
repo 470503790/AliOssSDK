@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AliOssSdk.Configuration;
@@ -64,6 +65,33 @@ public class OssClientTests
     }
 
     [Fact]
+    public async Task ExecuteAsync_WhenHttpClientThrowsOssRequestException_PropagatesDetails()
+    {
+        var configuration = CreateConfiguration();
+        var request = new OssHttpRequest(HttpMethod.Get, "/bucket/object");
+        var responseHeaders = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["x-oss-request-id"] = "async-request"
+        };
+        var responseBody = "<Error>Denied</Error>";
+        var ossResponse = new OssHttpResponse(HttpStatusCode.Forbidden, new MemoryStream(Encoding.UTF8.GetBytes(responseBody)), responseHeaders)
+        {
+            RequestId = "async-request"
+        };
+        var httpClient = new RecordingHttpClient(new OssRequestException(ossResponse, responseBody));
+        var signer = new RecordingSigner();
+        var logger = new TestLogger();
+        var operation = new StubOperation<string>("ErrorOperation", request, _ => "never");
+        var client = new OssClient(configuration, httpClient, signer, logger);
+
+        var exception = await Assert.ThrowsAsync<OssRequestException>(() => client.ExecuteAsync(operation)).ConfigureAwait(false);
+
+        Assert.Equal(HttpStatusCode.Forbidden, exception.StatusCode);
+        Assert.Equal("async-request", exception.RequestId);
+        Assert.Equal(responseBody, exception.ResponseBody);
+    }
+
+    [Fact]
     public async Task Constructor_UsesConfigurationOverrides()
     {
         var request = new OssHttpRequest(HttpMethod.Post, "/bucket/object");
@@ -97,6 +125,33 @@ public class OssClientTests
             OssLogEventType.RequestBody,
             OssLogEventType.Response
         }, logger.Events.Select(e => e.EventType));
+    }
+
+    [Fact]
+    public void Execute_WhenHttpClientThrowsOssRequestException_PropagatesDetails()
+    {
+        var configuration = CreateConfiguration();
+        var request = new OssHttpRequest(HttpMethod.Get, "/resource");
+        var responseBody = "<Error>SyncDenied</Error>";
+        var responseHeaders = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["x-oss-request-id"] = "sync-request"
+        };
+        var ossResponse = new OssHttpResponse(HttpStatusCode.BadRequest, new MemoryStream(Encoding.UTF8.GetBytes(responseBody)), responseHeaders)
+        {
+            RequestId = "sync-request"
+        };
+        var httpClient = new RecordingHttpClient(new OssRequestException(ossResponse, responseBody));
+        var signer = new RecordingSigner();
+        var logger = new TestLogger();
+        var operation = new StubOperation<int>("SyncError", request, _ => 0);
+        var client = new OssClient(configuration, httpClient, signer, logger);
+
+        var exception = Assert.Throws<OssRequestException>(() => client.Execute(operation));
+
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+        Assert.Equal("sync-request", exception.RequestId);
+        Assert.Equal(responseBody, exception.ResponseBody);
     }
 
     [Fact]
@@ -137,11 +192,17 @@ public class OssClientTests
 
     private sealed class RecordingHttpClient : IOssHttpClient
     {
-        private readonly OssHttpResponse _response;
+        private readonly OssHttpResponse? _response;
+        private readonly Exception? _exception;
 
         public RecordingHttpClient(OssHttpResponse response)
         {
             _response = response;
+        }
+
+        public RecordingHttpClient(Exception exception)
+        {
+            _exception = exception ?? throw new ArgumentNullException(nameof(exception));
         }
 
         public List<OssHttpRequest> Requests { get; } = new();
@@ -163,6 +224,16 @@ public class OssClientTests
             AsyncCallCount++;
             Requests.Add(request);
             CancellationTokens.Add(cancellationToken);
+            if (_exception != null)
+            {
+                return Task.FromException<OssHttpResponse>(_exception);
+            }
+
+            if (_response == null)
+            {
+                throw new InvalidOperationException("RecordingHttpClient requires either a response or exception.");
+            }
+
             return Task.FromResult(_response);
         }
     }

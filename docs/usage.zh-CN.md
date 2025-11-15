@@ -166,6 +166,33 @@ Console.WriteLine($"Content-Length: {headResponse.ContentLength}, Content-Type: 
 var metadata = client.HeadObject(new HeadObjectRequest("my-demo-bucket", "images/logo.png"));
 ```
 
+## 使用 OssRequestException 进行错误处理
+
+当 OSS 返回非 2xx 状态码时，`OssHttpClient` 会抛出 `AliOssSdk.Http.OssRequestException`，其中带有状态码、请求 ID、响应头以及原始响应体：
+
+```csharp
+using AliOssSdk.Http;
+
+try
+{
+    await client.ExecuteAsync(new DeleteObjectOperation(new DeleteObjectRequest("my-demo-bucket", "not-found.txt")));
+}
+catch (OssRequestException ex)
+{
+    Console.WriteLine($"异步调用失败: {ex.StatusCode}, RequestId = {ex.RequestId}");
+    Console.WriteLine(ex.ResponseBody);
+}
+
+try
+{
+    client.Execute(new GetObjectOperation(new GetObjectRequest("my-demo-bucket", "not-found.txt")));
+}
+catch (OssRequestException ex)
+{
+    Console.WriteLine(string.Join("\n", ex.ResponseHeaders));
+}
+```
+
 ## 分片上传
 
 **异步**
