@@ -30,7 +30,7 @@ namespace AliOssSdk.Operations.Buckets
             return httpRequest;
         }
 
-        public CreateBucketResponse ParseResponse(OssHttpResponse response) => new()
+        public CreateBucketResponse ParseResponse(OssHttpResponse response) => new CreateBucketResponse
         {
             StatusCode = response.StatusCode,
             Location = response.Headers.TryGetValue("Location", out var location) ? location : null

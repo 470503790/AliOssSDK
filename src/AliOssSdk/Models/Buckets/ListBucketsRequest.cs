@@ -2,8 +2,8 @@ namespace AliOssSdk.Models.Buckets
 {
     public sealed class ListBucketsRequest
     {
-        public string? Prefix { get; init; }
+        public string? Prefix { get; set; }
 
-        public int? MaxKeys { get; init; }
+        public int? MaxKeys { get; set; }
     }
 }

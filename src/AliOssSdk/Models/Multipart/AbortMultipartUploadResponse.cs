@@ -4,6 +4,6 @@ namespace AliOssSdk.Models.Multipart
 {
     public sealed class AbortMultipartUploadResponse
     {
-        public HttpStatusCode StatusCode { get; init; }
+        public HttpStatusCode StatusCode { get; set; }
     }
 }

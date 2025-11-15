@@ -5,21 +5,21 @@ namespace AliOssSdk.Models.Multipart
 {
     public sealed class ListPartsResponse
     {
-        public IReadOnlyCollection<MultipartPartSummary> Parts { get; init; } = new List<MultipartPartSummary>();
+        public IReadOnlyCollection<MultipartPartSummary> Parts { get; set; } = new List<MultipartPartSummary>();
 
-        public bool IsTruncated { get; init; }
+        public bool IsTruncated { get; set; }
 
-        public int? NextPartNumberMarker { get; init; }
+        public int? NextPartNumberMarker { get; set; }
     }
 
     public sealed class MultipartPartSummary
     {
-        public int PartNumber { get; init; }
+        public int PartNumber { get; set; }
 
-        public string? ETag { get; init; }
+        public string? ETag { get; set; }
 
-        public long Size { get; init; }
+        public long Size { get; set; }
 
-        public DateTimeOffset? LastModified { get; init; }
+        public DateTimeOffset? LastModified { get; set; }
     }
 }

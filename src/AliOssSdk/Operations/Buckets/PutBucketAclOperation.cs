@@ -25,7 +25,7 @@ namespace AliOssSdk.Operations.Buckets
             return httpRequest;
         }
 
-        public PutBucketAclResponse ParseResponse(OssHttpResponse response) => new()
+        public PutBucketAclResponse ParseResponse(OssHttpResponse response) => new PutBucketAclResponse
         {
             StatusCode = response.StatusCode
         };

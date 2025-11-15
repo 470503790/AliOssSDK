@@ -52,7 +52,7 @@ namespace AliOssSdk
 
         public TResponse Execute<TResponse>(IOssOperation<TResponse> operation) => ExecuteAsync(operation).GetAwaiter().GetResult();
 
-        public async Task<TResponse> ExecuteAsync<TResponse>(IOssOperation<TResponse> operation, CancellationToken cancellationToken = default)
+        public async Task<TResponse> ExecuteAsync<TResponse>(IOssOperation<TResponse> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (operation == null)
             {
@@ -98,7 +98,7 @@ namespace AliOssSdk
             return Execute(new ListBucketsOperation(request));
         }
 
-        public Task<ListBucketsResponse> ListBucketsAsync(ListBucketsRequest request, CancellationToken cancellationToken = default)
+        public Task<ListBucketsResponse> ListBucketsAsync(ListBucketsRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -118,7 +118,7 @@ namespace AliOssSdk
             return Execute(new CreateBucketOperation(request));
         }
 
-        public Task<CreateBucketResponse> CreateBucketAsync(CreateBucketRequest request, CancellationToken cancellationToken = default)
+        public Task<CreateBucketResponse> CreateBucketAsync(CreateBucketRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -138,7 +138,7 @@ namespace AliOssSdk
             return Execute(new DeleteBucketOperation(request));
         }
 
-        public Task<DeleteBucketResponse> DeleteBucketAsync(DeleteBucketRequest request, CancellationToken cancellationToken = default)
+        public Task<DeleteBucketResponse> DeleteBucketAsync(DeleteBucketRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -158,7 +158,7 @@ namespace AliOssSdk
             return Execute(new GetBucketInfoOperation(request));
         }
 
-        public Task<GetBucketInfoResponse> GetBucketInfoAsync(GetBucketInfoRequest request, CancellationToken cancellationToken = default)
+        public Task<GetBucketInfoResponse> GetBucketInfoAsync(GetBucketInfoRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -178,7 +178,7 @@ namespace AliOssSdk
             return Execute(new GetBucketAclOperation(request));
         }
 
-        public Task<GetBucketAclResponse> GetBucketAclAsync(GetBucketAclRequest request, CancellationToken cancellationToken = default)
+        public Task<GetBucketAclResponse> GetBucketAclAsync(GetBucketAclRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -198,7 +198,7 @@ namespace AliOssSdk
             return Execute(new PutBucketAclOperation(request));
         }
 
-        public Task<PutBucketAclResponse> PutBucketAclAsync(PutBucketAclRequest request, CancellationToken cancellationToken = default)
+        public Task<PutBucketAclResponse> PutBucketAclAsync(PutBucketAclRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -220,7 +220,7 @@ namespace AliOssSdk
             return Execute(new PutObjectOperation(request));
         }
 
-        public Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken cancellationToken = default)
+        public Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -240,7 +240,7 @@ namespace AliOssSdk
             return Execute(new GetObjectOperation(request));
         }
 
-        public Task<GetObjectResponse> GetObjectAsync(GetObjectRequest request, CancellationToken cancellationToken = default)
+        public Task<GetObjectResponse> GetObjectAsync(GetObjectRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -260,7 +260,7 @@ namespace AliOssSdk
             return Execute(new DeleteObjectOperation(request));
         }
 
-        public Task<DeleteObjectResponse> DeleteObjectAsync(DeleteObjectRequest request, CancellationToken cancellationToken = default)
+        public Task<DeleteObjectResponse> DeleteObjectAsync(DeleteObjectRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -280,7 +280,7 @@ namespace AliOssSdk
             return Execute(new ListObjectsOperation(request));
         }
 
-        public Task<ListObjectsResponse> ListObjectsAsync(ListObjectsRequest request, CancellationToken cancellationToken = default)
+        public Task<ListObjectsResponse> ListObjectsAsync(ListObjectsRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -300,7 +300,7 @@ namespace AliOssSdk
             return Execute(new HeadObjectOperation(request));
         }
 
-        public Task<HeadObjectResponse> HeadObjectAsync(HeadObjectRequest request, CancellationToken cancellationToken = default)
+        public Task<HeadObjectResponse> HeadObjectAsync(HeadObjectRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -320,7 +320,7 @@ namespace AliOssSdk
             return Execute(new CopyObjectOperation(request));
         }
 
-        public Task<CopyObjectResponse> CopyObjectAsync(CopyObjectRequest request, CancellationToken cancellationToken = default)
+        public Task<CopyObjectResponse> CopyObjectAsync(CopyObjectRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -342,7 +342,7 @@ namespace AliOssSdk
             return Execute(new InitiateMultipartUploadOperation(request));
         }
 
-        public Task<InitiateMultipartUploadResponse> InitiateMultipartUploadAsync(InitiateMultipartUploadRequest request, CancellationToken cancellationToken = default)
+        public Task<InitiateMultipartUploadResponse> InitiateMultipartUploadAsync(InitiateMultipartUploadRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -362,7 +362,7 @@ namespace AliOssSdk
             return Execute(new UploadPartOperation(request));
         }
 
-        public Task<UploadPartResponse> UploadPartAsync(UploadPartRequest request, CancellationToken cancellationToken = default)
+        public Task<UploadPartResponse> UploadPartAsync(UploadPartRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -382,7 +382,7 @@ namespace AliOssSdk
             return Execute(new CompleteMultipartUploadOperation(request));
         }
 
-        public Task<CompleteMultipartUploadResponse> CompleteMultipartUploadAsync(CompleteMultipartUploadRequest request, CancellationToken cancellationToken = default)
+        public Task<CompleteMultipartUploadResponse> CompleteMultipartUploadAsync(CompleteMultipartUploadRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -402,7 +402,7 @@ namespace AliOssSdk
             return Execute(new AbortMultipartUploadOperation(request));
         }
 
-        public Task<AbortMultipartUploadResponse> AbortMultipartUploadAsync(AbortMultipartUploadRequest request, CancellationToken cancellationToken = default)
+        public Task<AbortMultipartUploadResponse> AbortMultipartUploadAsync(AbortMultipartUploadRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -422,7 +422,7 @@ namespace AliOssSdk
             return Execute(new ListPartsOperation(request));
         }
 
-        public Task<ListPartsResponse> ListPartsAsync(ListPartsRequest request, CancellationToken cancellationToken = default)
+        public Task<ListPartsResponse> ListPartsAsync(ListPartsRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {
@@ -442,7 +442,7 @@ namespace AliOssSdk
             return Execute(new ListMultipartUploadsOperation(request));
         }
 
-        public Task<ListMultipartUploadsResponse> ListMultipartUploadsAsync(ListMultipartUploadsRequest request, CancellationToken cancellationToken = default)
+        public Task<ListMultipartUploadsResponse> ListMultipartUploadsAsync(ListMultipartUploadsRequest request, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (request == null)
             {

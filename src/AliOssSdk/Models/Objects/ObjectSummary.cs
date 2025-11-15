@@ -4,12 +4,12 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class ObjectSummary
     {
-        public string Key { get; init; } = string.Empty;
+        public string Key { get; set; } = string.Empty;
 
-        public string? ETag { get; init; }
+        public string? ETag { get; set; }
 
-        public long Size { get; init; }
+        public long Size { get; set; }
 
-        public DateTimeOffset? LastModified { get; init; }
+        public DateTimeOffset? LastModified { get; set; }
     }
 }

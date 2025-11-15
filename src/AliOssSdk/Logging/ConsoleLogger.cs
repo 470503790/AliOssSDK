@@ -9,7 +9,7 @@ namespace AliOssSdk.Logging
     /// </summary>
     public sealed class ConsoleLogger : ILogger
     {
-        private readonly object _lock = new();
+        private readonly object _lock = new object();
 
         public void Log(OssLogEvent logEvent)
         {

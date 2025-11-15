@@ -4,8 +4,8 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class PutObjectResponse
     {
-        public HttpStatusCode StatusCode { get; init; }
+        public HttpStatusCode StatusCode { get; set; }
 
-        public string? ETag { get; init; }
+        public string? ETag { get; set; }
     }
 }

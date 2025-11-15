@@ -4,8 +4,8 @@ namespace AliOssSdk.Models.Multipart
 {
     public sealed class UploadPartResponse
     {
-        public HttpStatusCode StatusCode { get; init; }
+        public HttpStatusCode StatusCode { get; set; }
 
-        public string? ETag { get; init; }
+        public string? ETag { get; set; }
     }
 }

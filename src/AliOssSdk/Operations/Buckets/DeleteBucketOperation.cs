@@ -22,7 +22,7 @@ namespace AliOssSdk.Operations.Buckets
             return new OssHttpRequest(HttpMethod.Delete, resource);
         }
 
-        public DeleteBucketResponse ParseResponse(OssHttpResponse response) => new()
+        public DeleteBucketResponse ParseResponse(OssHttpResponse response) => new DeleteBucketResponse
         {
             StatusCode = response.StatusCode
         };

@@ -5,10 +5,10 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class GetObjectResponse
     {
-        public HttpStatusCode StatusCode { get; init; }
+        public HttpStatusCode StatusCode { get; set; }
 
-        public Stream Content { get; init; } = Stream.Null;
+        public Stream Content { get; set; } = Stream.Null;
 
-        public string? ContentType { get; init; }
+        public string? ContentType { get; set; }
     }
 }

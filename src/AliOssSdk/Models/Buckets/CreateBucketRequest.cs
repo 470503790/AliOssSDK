@@ -11,6 +11,6 @@ namespace AliOssSdk.Models.Buckets
 
         public string BucketName { get; }
 
-        public string? Region { get; init; }
+        public string? Region { get; set; }
     }
 }
