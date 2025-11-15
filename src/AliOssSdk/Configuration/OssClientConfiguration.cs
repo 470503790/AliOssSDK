@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AliOssSdk.Http;
 using AliOssSdk.Logging;
 using AliOssSdk.Security;
@@ -10,11 +11,36 @@ namespace AliOssSdk.Configuration
     /// </summary>
     public sealed class OssClientConfiguration
     {
+        private static readonly IEqualityComparer<string> HeaderComparer = StringComparer.OrdinalIgnoreCase;
+
         public OssClientConfiguration(Uri endpoint, string accessKeyId, string accessKeySecret)
         {
-            Endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
-            AccessKeyId = accessKeyId ?? throw new ArgumentNullException(nameof(accessKeyId));
-            AccessKeySecret = accessKeySecret ?? throw new ArgumentNullException(nameof(accessKeySecret));
+            Endpoint = ValidateEndpoint(endpoint);
+            AccessKeyId = ValidateRequired(accessKeyId, nameof(accessKeyId));
+            AccessKeySecret = ValidateRequired(accessKeySecret, nameof(accessKeySecret));
+            Timeout = TimeSpan.FromSeconds(100);
+            DefaultHeaders = new Dictionary<string, string>(HeaderComparer);
+            DefaultQueryParameters = new Dictionary<string, string>(HeaderComparer);
+        }
+
+        public OssClientConfiguration(string endpoint, string accessKeyId, string accessKeySecret)
+            : this(ParseEndpoint(endpoint), accessKeyId, accessKeySecret)
+        {
+        }
+
+        private OssClientConfiguration(OssClientConfiguration source)
+        {
+            Endpoint = source.Endpoint;
+            AccessKeyId = source.AccessKeyId;
+            AccessKeySecret = source.AccessKeySecret;
+            SecurityToken = source.SecurityToken;
+            Timeout = source.Timeout;
+            DefaultRegion = source.DefaultRegion;
+            Logger = source.Logger;
+            HttpClient = source.HttpClient;
+            RequestSigner = source.RequestSigner;
+            DefaultHeaders = new Dictionary<string, string>(source.DefaultHeaders, HeaderComparer);
+            DefaultQueryParameters = new Dictionary<string, string>(source.DefaultQueryParameters, HeaderComparer);
         }
 
         public Uri Endpoint { get; }
@@ -27,22 +53,74 @@ namespace AliOssSdk.Configuration
 
         public string? DefaultRegion { get; set; }
 
+        public string? SecurityToken { get; set; }
+
         public ILogger? Logger { get; set; }
 
         public IOssHttpClient? HttpClient { get; set; }
 
         public IOssRequestSigner? RequestSigner { get; set; }
 
+        public IDictionary<string, string> DefaultHeaders { get; }
+
+        public IDictionary<string, string> DefaultQueryParameters { get; }
+
+        public OssClientConfiguration Clone()
+        {
+            return new OssClientConfiguration(this);
+        }
+
         public OssClientConfiguration WithTimeout(TimeSpan timeout)
         {
-            return new OssClientConfiguration(Endpoint, AccessKeyId, AccessKeySecret)
+            var clone = Clone();
+            clone.Timeout = timeout;
+            return clone;
+        }
+
+        private static Uri ValidateEndpoint(Uri endpoint)
+        {
+            if (endpoint == null)
             {
-                Timeout = timeout,
-                DefaultRegion = this.DefaultRegion,
-                Logger = this.Logger,
-                HttpClient = this.HttpClient,
-                RequestSigner = this.RequestSigner
-            };
+                throw new ArgumentNullException(nameof(endpoint));
+            }
+
+            if (!endpoint.IsAbsoluteUri)
+            {
+                throw new ArgumentException("Endpoint must be an absolute URI.", nameof(endpoint));
+            }
+
+            if (!string.Equals(endpoint.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(endpoint.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException("Endpoint must use HTTP or HTTPS.", nameof(endpoint));
+            }
+
+            return endpoint;
+        }
+
+        private static Uri ParseEndpoint(string endpoint)
+        {
+            if (string.IsNullOrWhiteSpace(endpoint))
+            {
+                throw new ArgumentException("Endpoint cannot be null or whitespace.", nameof(endpoint));
+            }
+
+            return ValidateEndpoint(new Uri(endpoint, UriKind.Absolute));
+        }
+
+        private static string ValidateRequired(string value, string parameterName)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(parameterName);
+            }
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException($"{parameterName} cannot be empty.", parameterName);
+            }
+
+            return value;
         }
     }
 }
