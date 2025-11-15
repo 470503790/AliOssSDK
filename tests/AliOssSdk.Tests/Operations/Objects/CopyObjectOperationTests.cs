@@ -24,6 +24,30 @@ namespace AliOssSdk.Tests.Operations.Objects
         }
 
         [Fact]
+        public void BuildRequest_UsesDefaultBucket_WhenRequestOmitsNames()
+        {
+            var request = new CopyObjectRequest("source.txt", "dest.txt");
+            var operation = new CopyObjectOperation(request);
+
+            var result = operation.BuildRequest(OperationTestHelpers.CreateContext(defaultBucket: "fallback"));
+
+            Assert.Equal("/fallback/dest.txt", result.ResourcePath);
+            Assert.Equal("/fallback/source.txt", result.Headers["x-oss-copy-source"]);
+        }
+
+        [Fact]
+        public void BuildRequest_UsesSourceBucket_WhenDestinationOmitted()
+        {
+            var request = new CopyObjectRequest("custom", "from.txt", "to.txt");
+            var operation = new CopyObjectOperation(request);
+
+            var result = operation.BuildRequest(OperationTestHelpers.CreateContext());
+
+            Assert.Equal("/custom/to.txt", result.ResourcePath);
+            Assert.Equal("/custom/from.txt", result.Headers["x-oss-copy-source"]);
+        }
+
+        [Fact]
         public void ParseResponse_ReadsEtagAndLastModified()
         {
             const string payload = """

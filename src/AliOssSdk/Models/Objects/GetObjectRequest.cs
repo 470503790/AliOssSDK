@@ -4,6 +4,11 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class GetObjectRequest
     {
+        public GetObjectRequest(string objectKey)
+            : this(null, objectKey)
+        {
+        }
+
         public GetObjectRequest(string? bucketName, string objectKey)
         {
             if (string.IsNullOrWhiteSpace(objectKey))
