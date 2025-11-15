@@ -83,6 +83,34 @@ var response = client.Execute(listBuckets);
 
 完整的端到端场景（列举 Bucket、上传/下载对象、删除对象等）在 [中文使用指南](docs/usage.zh-CN.md) 与 [English guide](docs/usage.md) 中提供同步与异步示例。
 
+## 错误处理
+
+所有 HTTP 调用都会经过 `OssHttpClient`。当 OSS 返回非 2xx 状态码时，客户端会抛出 `AliOssSdk.Http.OssRequestException`，其中包含 HTTP 状态码、`x-oss-request-id`、响应头以及（若存在）响应体。可以在同步/异步场景中捕获该异常并读取详细信息：
+
+```csharp
+using AliOssSdk.Http;
+
+try
+{
+    await client.ExecuteAsync(new DeleteObjectOperation(new DeleteObjectRequest("demo", "missing.txt")));
+}
+catch (OssRequestException ex)
+{
+    Console.WriteLine($"状态码: {ex.StatusCode}, 请求 ID: {ex.RequestId}");
+    Console.WriteLine(ex.ResponseBody);
+}
+
+try
+{
+    client.Execute(new GetObjectOperation(new GetObjectRequest("demo", "missing.txt")));
+}
+catch (OssRequestException ex)
+{
+    // 同步入口同样抛出该异常类型
+    Console.WriteLine($"响应头: {string.Join(",", ex.ResponseHeaders)}");
+}
+```
+
 ## 已实现的 OSS 操作
 
 下表列出目前 SDK 已实现的 Operation 以及可直接调用的同步/异步方法。所有 Operation 同样支持 `Execute`/`ExecuteAsync` 通用入口。

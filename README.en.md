@@ -80,6 +80,34 @@ When you prefer simpler entry points, `IOssClient` exposes typed helpers such as
 
 Common end-to-end scenarios—including listing buckets, uploading objects, downloading objects, and deleting objects—are documented with both sync and async snippets in [`docs/usage.md`](docs/usage.md). The repository also tracks parity with Aliyun's official "按功能列出的操作" catalog in [`docs/operation-coverage.md`](docs/operation-coverage.md) so it is easy to spot which APIs still need contributions.
 
+## Error handling
+
+Every HTTP call flows through `OssHttpClient`. When OSS returns a non-success status code, the client throws an `AliOssSdk.Http.OssRequestException` that contains the status code, `x-oss-request-id`, headers, and the response body (if available). You can capture the exception in both async and sync workflows to inspect these details:
+
+```csharp
+using AliOssSdk.Http;
+
+try
+{
+    await client.ExecuteAsync(new DeleteObjectOperation(new DeleteObjectRequest("demo", "missing.txt")));
+}
+catch (OssRequestException ex)
+{
+    Console.WriteLine($"Failed with {ex.StatusCode}, request ID {ex.RequestId}");
+    Console.WriteLine(ex.ResponseBody);
+}
+
+try
+{
+    client.Execute(new GetObjectOperation(new GetObjectRequest("demo", "missing.txt")));
+}
+catch (OssRequestException ex)
+{
+    // Sync entry points surface the same exception type.
+    Console.WriteLine($"Headers: {string.Join(",", ex.ResponseHeaders)}");
+}
+```
+
 ## Logging
 
 `OssClientConfiguration` accepts any implementation of `AliOssSdk.Logging.ILogger`. The SDK includes `ConsoleLogger` and `NullLogger`; you can plug in your own adapter (e.g., Serilog, log4net) by implementing the single `Log(OssLogEvent logEvent)` method.

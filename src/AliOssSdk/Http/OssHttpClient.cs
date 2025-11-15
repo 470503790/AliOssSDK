@@ -67,11 +67,26 @@ namespace AliOssSdk.Http
                 headers[header.Key] = string.Join(",", header.Value);
             }
 
+            var isSuccess = response.IsSuccessStatusCode;
             var ossResponse = new OssHttpResponse(response.StatusCode, stream, headers)
             {
                 RequestId = headers.TryGetValue("x-oss-request-id", out var requestId) ? requestId : null
             };
             response.Dispose();
+            if (!isSuccess)
+            {
+                string? responseBody = null;
+                if (stream.Length > 0)
+                {
+                    stream.Position = 0;
+                    using var reader = new StreamReader(stream, leaveOpen: true);
+                    responseBody = await reader.ReadToEndAsync().ConfigureAwait(false);
+                    stream.Position = 0;
+                }
+
+                throw new OssRequestException(ossResponse, responseBody);
+            }
+
             return ossResponse;
         }
 
