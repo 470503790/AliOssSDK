@@ -84,6 +84,18 @@ Console.WriteLine($"ETag: {result.ETag}");
 var result = client.Execute(operation);
 ```
 
+## 通过文件路径上传
+
+若文件已经存储在磁盘上，可调用 `PutObjectFromFile`/`PutObjectFromFileAsync`，SDK 会自动打开文件流并沿用 `PutObject` 的管道。
+
+```csharp
+await client.PutObjectFromFileAsync(
+    bucketName: "my-demo-bucket",
+    objectKey: "images/logo.png",
+    filePath: Path.Combine(Environment.CurrentDirectory, "logo.png"),
+    contentType: "image/png");
+```
+
 ## 下载对象
 
 ```csharp
@@ -150,6 +162,18 @@ var copyResult = client.CopyObject(new CopyObjectRequest(
     "images/logo.png",
     "my-demo-bucket",
     "archives/logo-backup.png"));
+```
+
+## 批量移动对象
+
+需要迁移或重命名多个对象时，可传入 `ObjectMoveDescriptor` 列表给 `MoveObjects`/`MoveObjectsAsync`。每个条目都会先复制到目标位置，再删除源文件，确保 OSS 上的移动一致性。
+
+```csharp
+await client.MoveObjectsAsync(new[]
+{
+    new ObjectMoveDescriptor("my-demo-bucket", "tmp/report.pdf", "my-demo-bucket", "reports/2024/report.pdf"),
+    new ObjectMoveDescriptor("my-demo-bucket", "raw/video.mov", "my-archive", "2024/video.mov")
+});
 ```
 
 ## 查看对象元数据（HEAD）

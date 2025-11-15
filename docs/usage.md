@@ -84,6 +84,18 @@ Console.WriteLine($"ETag: {result.ETag}");
 var result = client.Execute(operation);
 ```
 
+## Uploading from a file path
+
+If you already have the payload on disk, `PutObjectFromFile`/`PutObjectFromFileAsync` will open the stream, infer the default content type (`application/octet-stream`), and reuse the `PutObject` pipeline for you.
+
+```csharp
+await client.PutObjectFromFileAsync(
+    bucketName: "my-demo-bucket",
+    objectKey: "images/logo.png",
+    filePath: Path.Combine(Environment.CurrentDirectory, "logo.png"),
+    contentType: "image/png");
+```
+
 ## Downloading an object
 
 ```csharp
@@ -187,6 +199,18 @@ var copyResult = client.CopyObject(new CopyObjectRequest(
     "images/logo.png",
     "my-demo-bucket",
     "archives/logo-backup.png"));
+```
+
+## Moving multiple objects
+
+To migrate keys or reorganize folders, call `MoveObjects`/`MoveObjectsAsync` with a list of `ObjectMoveDescriptor` entries. The client will copy every object to the destination and delete the original once the copy succeeds.
+
+```csharp
+await client.MoveObjectsAsync(new[]
+{
+    new ObjectMoveDescriptor("my-demo-bucket", "tmp/report.pdf", "my-demo-bucket", "reports/2024/report.pdf"),
+    new ObjectMoveDescriptor("my-demo-bucket", "raw/video.mov", "my-archive", "2024/video.mov")
+});
 ```
 
 ## Checking object metadata (HEAD)

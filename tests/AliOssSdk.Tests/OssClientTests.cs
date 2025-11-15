@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using AliOssSdk.Configuration;
 using AliOssSdk.Http;
 using AliOssSdk.Logging;
+using AliOssSdk.Models.Objects;
 using AliOssSdk.Operations;
 using AliOssSdk.Security;
 using Xunit;
@@ -190,6 +191,116 @@ namespace AliOssSdk.Tests
             }, logger.Events.Select(e => e.EventType));
         }
 
+        [Fact]
+        public void PutObjectFromFile_DelegatesToPutOperation()
+        {
+            var configuration = CreateConfiguration();
+            var httpResponse = new OssHttpResponse(HttpStatusCode.OK, new MemoryStream(Encoding.UTF8.GetBytes("")), new Dictionary<string, string>());
+            var httpClient = new RecordingHttpClient(httpResponse);
+            var signer = new RecordingSigner();
+            var logger = new TestLogger();
+            var client = new OssClient(configuration, httpClient, signer, logger);
+
+            var path = Path.GetTempFileName();
+            File.WriteAllText(path, "hello");
+
+            try
+            {
+                var result = client.PutObjectFromFile("my-bucket", "images/logo.png", path, "text/plain");
+
+                Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+                var request = Assert.Single(httpClient.Requests);
+                Assert.Equal(HttpMethod.Put, request.Method);
+                Assert.Equal("/my-bucket/images/logo.png", request.ResourcePath);
+                Assert.Equal("text/plain", request.ContentType);
+                Assert.NotNull(request.Content);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public async Task PutObjectFromFileAsync_UsesDefaultContentType()
+        {
+            var configuration = CreateConfiguration();
+            var httpResponse = new OssHttpResponse(HttpStatusCode.OK, new MemoryStream(Encoding.UTF8.GetBytes("")), new Dictionary<string, string>());
+            var httpClient = new RecordingHttpClient(httpResponse);
+            var signer = new RecordingSigner();
+            var logger = new TestLogger();
+            var client = new OssClient(configuration, httpClient, signer, logger);
+
+            var path = Path.GetTempFileName();
+            File.WriteAllText(path, "hello async");
+
+            try
+            {
+                var response = await client.PutObjectFromFileAsync(null, "images/logo.png", path).ConfigureAwait(false);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                var request = Assert.Single(httpClient.Requests);
+                Assert.Equal("application/octet-stream", request.ContentType);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public void MoveObjects_ChainsCopyAndDelete()
+        {
+            var configuration = CreateConfiguration();
+            var httpClient = new RecordingHttpClient(() =>
+                new OssHttpResponse(HttpStatusCode.OK, new MemoryStream(Encoding.UTF8.GetBytes("<CopyObjectResult />")), new Dictionary<string, string>()));
+            var signer = new RecordingSigner();
+            var logger = new TestLogger();
+            var client = new OssClient(configuration, httpClient, signer, logger);
+
+            var descriptors = new[]
+            {
+                new ObjectMoveDescriptor("source", "from.txt", "dest", "to.txt"),
+                new ObjectMoveDescriptor("my-bucket", "docs/report.pdf", "my-bucket", "reports/2024/report.pdf")
+            };
+
+            client.MoveObjects(descriptors);
+
+            Assert.Equal(4, httpClient.Requests.Count);
+            Assert.Equal(HttpMethod.Put, httpClient.Requests[0].Method);
+            Assert.Equal("/dest/to.txt", httpClient.Requests[0].ResourcePath);
+            Assert.Equal(HttpMethod.Delete, httpClient.Requests[1].Method);
+            Assert.Equal("/source/from.txt", httpClient.Requests[1].ResourcePath);
+            Assert.Equal(HttpMethod.Put, httpClient.Requests[2].Method);
+            Assert.Equal("/my-bucket/reports/2024/report.pdf", httpClient.Requests[2].ResourcePath);
+            Assert.Equal(HttpMethod.Delete, httpClient.Requests[3].Method);
+            Assert.Equal("/my-bucket/docs/report.pdf", httpClient.Requests[3].ResourcePath);
+        }
+
+        [Fact]
+        public async Task MoveObjectsAsync_HonorsDescriptorsSequentially()
+        {
+            var configuration = CreateConfiguration();
+            var httpClient = new RecordingHttpClient(() =>
+                new OssHttpResponse(HttpStatusCode.OK, new MemoryStream(Encoding.UTF8.GetBytes("<CopyObjectResult />")), new Dictionary<string, string>()));
+            var signer = new RecordingSigner();
+            var logger = new TestLogger();
+            var client = new OssClient(configuration, httpClient, signer, logger);
+
+            var descriptors = new[]
+            {
+                new ObjectMoveDescriptor("source", "from.txt", "dest", "to.txt"),
+                new ObjectMoveDescriptor("source", "second.txt", "dest", "second.txt")
+            };
+
+            await client.MoveObjectsAsync(descriptors).ConfigureAwait(false);
+
+            Assert.Equal(4, httpClient.Requests.Count);
+            Assert.Equal(HttpMethod.Put, httpClient.Requests[0].Method);
+            Assert.Equal(HttpMethod.Delete, httpClient.Requests[1].Method);
+            Assert.Equal(HttpMethod.Put, httpClient.Requests[2].Method);
+            Assert.Equal(HttpMethod.Delete, httpClient.Requests[3].Method);
+        }
+
         private static OssClientConfiguration CreateConfiguration()
         {
             return new OssClientConfiguration(new Uri("https://oss.example.com"), "key", "secret");
@@ -198,11 +309,17 @@ namespace AliOssSdk.Tests
         private sealed class RecordingHttpClient : IOssHttpClient
         {
             private readonly OssHttpResponse? _response;
+            private readonly Func<OssHttpResponse>? _responseFactory;
             private readonly Exception? _exception;
 
             public RecordingHttpClient(OssHttpResponse response)
             {
                 _response = response;
+            }
+
+            public RecordingHttpClient(Func<OssHttpResponse> responseFactory)
+            {
+                _responseFactory = responseFactory ?? throw new ArgumentNullException(nameof(responseFactory));
             }
 
             public RecordingHttpClient(Exception exception)
@@ -234,12 +351,13 @@ namespace AliOssSdk.Tests
                     return Task.FromException<OssHttpResponse>(_exception);
                 }
 
-                if (_response == null)
+                var response = _responseFactory?.Invoke() ?? _response;
+                if (response == null)
                 {
                     throw new InvalidOperationException("RecordingHttpClient requires either a response or exception.");
                 }
 
-                return Task.FromResult(_response);
+                return Task.FromResult(response);
             }
         }
 

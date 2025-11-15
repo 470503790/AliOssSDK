@@ -230,6 +230,40 @@ namespace AliOssSdk
             return ExecuteAsync(new PutObjectOperation(request), cancellationToken);
         }
 
+        public PutObjectResponse PutObjectFromFile(string? bucketName, string objectKey, string filePath, string? contentType = null)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentException("File path is required", nameof(filePath));
+            }
+
+            using (var stream = File.OpenRead(filePath))
+            {
+                var request = new PutObjectRequest(bucketName, objectKey, stream)
+                {
+                    ContentType = contentType
+                };
+                return PutObject(request);
+            }
+        }
+
+        public async Task<PutObjectResponse> PutObjectFromFileAsync(string? bucketName, string objectKey, string filePath, string? contentType = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentException("File path is required", nameof(filePath));
+            }
+
+            using (var stream = File.OpenRead(filePath))
+            {
+                var request = new PutObjectRequest(bucketName, objectKey, stream)
+                {
+                    ContentType = contentType
+                };
+                return await PutObjectAsync(request, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
         public GetObjectResponse GetObject(GetObjectRequest request)
         {
             if (request == null)
@@ -328,6 +362,54 @@ namespace AliOssSdk
             }
 
             return ExecuteAsync(new CopyObjectOperation(request), cancellationToken);
+        }
+
+        public void MoveObjects(IEnumerable<ObjectMoveDescriptor> descriptors)
+        {
+            if (descriptors == null)
+            {
+                throw new ArgumentNullException(nameof(descriptors));
+            }
+
+            foreach (var descriptor in descriptors)
+            {
+                if (descriptor == null)
+                {
+                    throw new ArgumentException("Move descriptor cannot be null", nameof(descriptors));
+                }
+
+                var copyRequest = new CopyObjectRequest(descriptor.SourceBucketName, descriptor.SourceObjectKey, descriptor.DestinationBucketName, descriptor.DestinationObjectKey);
+                CopyObject(copyRequest);
+
+                var deleteBucket = descriptor.SourceBucketName ?? descriptor.DestinationBucketName;
+                var deleteRequest = new DeleteObjectRequest(deleteBucket, descriptor.SourceObjectKey);
+                DeleteObject(deleteRequest);
+            }
+        }
+
+        public async Task MoveObjectsAsync(IEnumerable<ObjectMoveDescriptor> descriptors, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (descriptors == null)
+            {
+                throw new ArgumentNullException(nameof(descriptors));
+            }
+
+            foreach (var descriptor in descriptors)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (descriptor == null)
+                {
+                    throw new ArgumentException("Move descriptor cannot be null", nameof(descriptors));
+                }
+
+                var copyRequest = new CopyObjectRequest(descriptor.SourceBucketName, descriptor.SourceObjectKey, descriptor.DestinationBucketName, descriptor.DestinationObjectKey);
+                await CopyObjectAsync(copyRequest, cancellationToken).ConfigureAwait(false);
+
+                var deleteBucket = descriptor.SourceBucketName ?? descriptor.DestinationBucketName;
+                var deleteRequest = new DeleteObjectRequest(deleteBucket, descriptor.SourceObjectKey);
+                await DeleteObjectAsync(deleteRequest, cancellationToken).ConfigureAwait(false);
+            }
         }
         #endregion
 

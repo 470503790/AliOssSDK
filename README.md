@@ -84,6 +84,23 @@ var response = client.Execute(listBuckets);
 
 同时 `IOssClient` 还提供 `GetObjectAsync`、`ListObjectsAsync`、`InitiateMultipartUploadAsync` 及其同步同名方法等语法糖，它们内部同样创建并执行对应 Operation，保证同步/异步一致性。
 
+### 便利方法
+
+除了直接构造 Operation，SDK 还内置了几个常用的便捷入口：
+
+- `PutObjectFromFile` / `PutObjectFromFileAsync`：传入文件路径即可上传，内部自动打开文件流并调用 `PutObject`。
+- `MoveObjects` / `MoveObjectsAsync`：批量移动对象，内部会先调用 `CopyObject` 再执行 `DeleteObject`，以保证 OSS 上对象真正完成移动。
+
+```csharp
+await client.PutObjectFromFileAsync("my-demo-bucket", "images/logo.png", "./logo.png", "image/png");
+
+await client.MoveObjectsAsync(new[]
+{
+    new ObjectMoveDescriptor("my-demo-bucket", "raw/video.mov", "my-archive", "2024/video.mov"),
+    new ObjectMoveDescriptor("my-demo-bucket", "tmp/report.pdf", "my-demo-bucket", "reports/2024/report.pdf")
+});
+```
+
 完整的端到端场景（列举 Bucket、上传/下载对象、删除对象等）在 [中文使用指南](docs/usage.zh-CN.md) 与 [English guide](docs/usage.md) 中提供同步与异步示例。
 
 ## 错误处理
