@@ -5,6 +5,11 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class PutObjectRequest
     {
+        public PutObjectRequest(string objectKey, Stream content)
+            : this(null, objectKey, content)
+        {
+        }
+
         public PutObjectRequest(string? bucketName, string objectKey, Stream content)
         {
             if (string.IsNullOrWhiteSpace(objectKey))

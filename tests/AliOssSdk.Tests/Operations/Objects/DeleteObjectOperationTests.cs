@@ -22,6 +22,16 @@ namespace AliOssSdk.Tests.Operations.Objects
         }
 
         [Fact]
+        public void BuildRequest_UsesDefaultBucket_WhenRequestOmitsName()
+        {
+            var operation = new DeleteObjectOperation(new DeleteObjectRequest("key"));
+
+            var result = operation.BuildRequest(OperationTestHelpers.CreateContext(defaultBucket: "fallback"));
+
+            Assert.Equal("/fallback/key", result.ResourcePath);
+        }
+
+        [Fact]
         public void ParseResponse_ReturnsStatus()
         {
             var response = OperationTestHelpers.CreateResponse(string.Empty, HttpStatusCode.NoContent);

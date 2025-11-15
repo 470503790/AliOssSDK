@@ -20,9 +20,12 @@ namespace AliOssSdk.Operations.Objects
 
         public OssHttpRequest BuildRequest(OssOperationContext context)
         {
-            var resource = $"/{_request.DestinationBucket}/{_request.DestinationKey}";
+            var destinationBucket = context.ResolveBucketName(_request.DestinationBucket ?? _request.SourceBucket);
+            var sourceBucket = context.ResolveBucketName(_request.SourceBucket ?? _request.DestinationBucket);
+
+            var resource = $"/{destinationBucket}/{_request.DestinationKey}";
             var httpRequest = new OssHttpRequest(HttpMethod.Put, resource);
-            var source = $"/{_request.SourceBucket}/{_request.SourceKey}";
+            var source = $"/{sourceBucket}/{_request.SourceKey}";
             httpRequest.Headers["x-oss-copy-source"] = source;
             return httpRequest;
         }

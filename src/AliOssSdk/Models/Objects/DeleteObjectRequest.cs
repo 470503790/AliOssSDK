@@ -4,6 +4,11 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class DeleteObjectRequest
     {
+        public DeleteObjectRequest(string objectKey)
+            : this(null, objectKey)
+        {
+        }
+
         public DeleteObjectRequest(string? bucketName, string objectKey)
         {
             if (string.IsNullOrWhiteSpace(objectKey))
