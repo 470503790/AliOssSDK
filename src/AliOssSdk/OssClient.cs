@@ -6,7 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using AliOssSdk.Configuration;
 using AliOssSdk.Http;
+using AliOssSdk.Models.Buckets;
+using AliOssSdk.Models.Multipart;
+using AliOssSdk.Models.Objects;
 using AliOssSdk.Operations;
+using AliOssSdk.Operations.Buckets;
+using AliOssSdk.Operations.Multipart;
+using AliOssSdk.Operations.Objects;
 using AliOssSdk.Security;
 using AliOssSdk.Logging;
 
@@ -75,6 +81,372 @@ namespace AliOssSdk
                 throw;
             }
         }
+
+        #region Bucket helpers
+        public ListBucketsResponse ListBuckets(ListBucketsRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new ListBucketsOperation(request));
+        }
+
+        public Task<ListBucketsResponse> ListBucketsAsync(ListBucketsRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new ListBucketsOperation(request), cancellationToken);
+        }
+
+        public CreateBucketResponse CreateBucket(CreateBucketRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new CreateBucketOperation(request));
+        }
+
+        public Task<CreateBucketResponse> CreateBucketAsync(CreateBucketRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new CreateBucketOperation(request), cancellationToken);
+        }
+
+        public DeleteBucketResponse DeleteBucket(DeleteBucketRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new DeleteBucketOperation(request));
+        }
+
+        public Task<DeleteBucketResponse> DeleteBucketAsync(DeleteBucketRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new DeleteBucketOperation(request), cancellationToken);
+        }
+
+        public GetBucketInfoResponse GetBucketInfo(GetBucketInfoRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new GetBucketInfoOperation(request));
+        }
+
+        public Task<GetBucketInfoResponse> GetBucketInfoAsync(GetBucketInfoRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new GetBucketInfoOperation(request), cancellationToken);
+        }
+
+        public GetBucketAclResponse GetBucketAcl(GetBucketAclRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new GetBucketAclOperation(request));
+        }
+
+        public Task<GetBucketAclResponse> GetBucketAclAsync(GetBucketAclRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new GetBucketAclOperation(request), cancellationToken);
+        }
+
+        public PutBucketAclResponse PutBucketAcl(PutBucketAclRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new PutBucketAclOperation(request));
+        }
+
+        public Task<PutBucketAclResponse> PutBucketAclAsync(PutBucketAclRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new PutBucketAclOperation(request), cancellationToken);
+        }
+        #endregion
+
+        #region Object helpers
+        public PutObjectResponse PutObject(PutObjectRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new PutObjectOperation(request));
+        }
+
+        public Task<PutObjectResponse> PutObjectAsync(PutObjectRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new PutObjectOperation(request), cancellationToken);
+        }
+
+        public GetObjectResponse GetObject(GetObjectRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new GetObjectOperation(request));
+        }
+
+        public Task<GetObjectResponse> GetObjectAsync(GetObjectRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new GetObjectOperation(request), cancellationToken);
+        }
+
+        public DeleteObjectResponse DeleteObject(DeleteObjectRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new DeleteObjectOperation(request));
+        }
+
+        public Task<DeleteObjectResponse> DeleteObjectAsync(DeleteObjectRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new DeleteObjectOperation(request), cancellationToken);
+        }
+
+        public ListObjectsResponse ListObjects(ListObjectsRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new ListObjectsOperation(request));
+        }
+
+        public Task<ListObjectsResponse> ListObjectsAsync(ListObjectsRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new ListObjectsOperation(request), cancellationToken);
+        }
+
+        public HeadObjectResponse HeadObject(HeadObjectRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new HeadObjectOperation(request));
+        }
+
+        public Task<HeadObjectResponse> HeadObjectAsync(HeadObjectRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new HeadObjectOperation(request), cancellationToken);
+        }
+
+        public CopyObjectResponse CopyObject(CopyObjectRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new CopyObjectOperation(request));
+        }
+
+        public Task<CopyObjectResponse> CopyObjectAsync(CopyObjectRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new CopyObjectOperation(request), cancellationToken);
+        }
+        #endregion
+
+        #region Multipart helpers
+        public InitiateMultipartUploadResponse InitiateMultipartUpload(InitiateMultipartUploadRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new InitiateMultipartUploadOperation(request));
+        }
+
+        public Task<InitiateMultipartUploadResponse> InitiateMultipartUploadAsync(InitiateMultipartUploadRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new InitiateMultipartUploadOperation(request), cancellationToken);
+        }
+
+        public UploadPartResponse UploadPart(UploadPartRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new UploadPartOperation(request));
+        }
+
+        public Task<UploadPartResponse> UploadPartAsync(UploadPartRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new UploadPartOperation(request), cancellationToken);
+        }
+
+        public CompleteMultipartUploadResponse CompleteMultipartUpload(CompleteMultipartUploadRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new CompleteMultipartUploadOperation(request));
+        }
+
+        public Task<CompleteMultipartUploadResponse> CompleteMultipartUploadAsync(CompleteMultipartUploadRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new CompleteMultipartUploadOperation(request), cancellationToken);
+        }
+
+        public AbortMultipartUploadResponse AbortMultipartUpload(AbortMultipartUploadRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new AbortMultipartUploadOperation(request));
+        }
+
+        public Task<AbortMultipartUploadResponse> AbortMultipartUploadAsync(AbortMultipartUploadRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new AbortMultipartUploadOperation(request), cancellationToken);
+        }
+
+        public ListPartsResponse ListParts(ListPartsRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new ListPartsOperation(request));
+        }
+
+        public Task<ListPartsResponse> ListPartsAsync(ListPartsRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new ListPartsOperation(request), cancellationToken);
+        }
+
+        public ListMultipartUploadsResponse ListMultipartUploads(ListMultipartUploadsRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return Execute(new ListMultipartUploadsOperation(request));
+        }
+
+        public Task<ListMultipartUploadsResponse> ListMultipartUploadsAsync(ListMultipartUploadsRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            return ExecuteAsync(new ListMultipartUploadsOperation(request), cancellationToken);
+        }
+        #endregion
 
         public void Dispose()
         {
