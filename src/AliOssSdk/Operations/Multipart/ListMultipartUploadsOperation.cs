@@ -21,7 +21,8 @@ namespace AliOssSdk.Operations.Multipart
 
         public OssHttpRequest BuildRequest(OssOperationContext context)
         {
-            var resource = $"/{_request.BucketName}";
+            var bucket = context.ResolveBucketName(_request.BucketName);
+            var resource = $"/{bucket}";
             var httpRequest = new OssHttpRequest(HttpMethod.Get, resource);
             httpRequest.QueryParameters["uploads"] = string.Empty;
 

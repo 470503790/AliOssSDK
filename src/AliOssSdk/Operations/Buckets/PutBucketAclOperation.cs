@@ -18,7 +18,8 @@ namespace AliOssSdk.Operations.Buckets
 
         public OssHttpRequest BuildRequest(OssOperationContext context)
         {
-            var resource = $"/{_request.BucketName}";
+            var bucket = context.ResolveBucketName(_request.BucketName);
+            var resource = $"/{bucket}";
             var httpRequest = new OssHttpRequest(HttpMethod.Put, resource);
             httpRequest.QueryParameters["acl"] = string.Empty;
             httpRequest.Headers["x-oss-acl"] = ToHeaderValue(_request.Acl);

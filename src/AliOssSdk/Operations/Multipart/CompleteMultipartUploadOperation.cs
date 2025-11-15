@@ -22,7 +22,8 @@ namespace AliOssSdk.Operations.Multipart
 
         public OssHttpRequest BuildRequest(OssOperationContext context)
         {
-            var resource = $"/{_request.BucketName}/{_request.ObjectKey}";
+            var bucket = context.ResolveBucketName(_request.BucketName);
+            var resource = $"/{bucket}/{_request.ObjectKey}";
             var document = new XDocument(new XElement("CompleteMultipartUpload",
                 _request.Parts.OrderBy(p => p.PartNumber).Select(part =>
                     new XElement("Part",

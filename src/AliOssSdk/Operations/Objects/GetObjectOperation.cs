@@ -18,7 +18,8 @@ namespace AliOssSdk.Operations.Objects
 
         public OssHttpRequest BuildRequest(OssOperationContext context)
         {
-            var resource = $"/{_request.BucketName}/{_request.ObjectKey}";
+            var bucket = context.ResolveBucketName(_request.BucketName);
+            var resource = $"/{bucket}/{_request.ObjectKey}";
             return new OssHttpRequest(HttpMethod.Get, resource);
         }
 

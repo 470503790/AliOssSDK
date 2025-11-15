@@ -4,13 +4,18 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class DeleteObjectRequest
     {
-        public DeleteObjectRequest(string bucketName, string objectKey)
+        public DeleteObjectRequest(string? bucketName, string objectKey)
         {
-            BucketName = bucketName ?? throw new ArgumentNullException(nameof(bucketName));
-            ObjectKey = objectKey ?? throw new ArgumentNullException(nameof(objectKey));
+            if (string.IsNullOrWhiteSpace(objectKey))
+            {
+                throw new ArgumentException("Object key is required", nameof(objectKey));
+            }
+
+            BucketName = bucketName;
+            ObjectKey = objectKey;
         }
 
-        public string BucketName { get; }
+        public string? BucketName { get; }
 
         public string ObjectKey { get; }
     }

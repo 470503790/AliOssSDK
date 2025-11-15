@@ -4,16 +4,16 @@ namespace AliOssSdk.Models.Buckets
 {
     public sealed class DeleteBucketRequest
     {
-        public DeleteBucketRequest(string bucketName)
+        public DeleteBucketRequest(string? bucketName)
         {
-            if (string.IsNullOrWhiteSpace(bucketName))
+            if (bucketName != null && string.IsNullOrWhiteSpace(bucketName))
             {
-                throw new ArgumentException("Bucket name is required", nameof(bucketName));
+                throw new ArgumentException("Bucket name cannot be empty", nameof(bucketName));
             }
 
             BucketName = bucketName;
         }
 
-        public string BucketName { get; }
+        public string? BucketName { get; }
     }
 }

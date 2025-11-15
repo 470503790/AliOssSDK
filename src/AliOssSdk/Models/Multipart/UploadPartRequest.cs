@@ -5,11 +5,11 @@ namespace AliOssSdk.Models.Multipart
 {
     public sealed class UploadPartRequest
     {
-        public UploadPartRequest(string bucketName, string objectKey, string uploadId, int partNumber, Stream content)
+        public UploadPartRequest(string? bucketName, string objectKey, string uploadId, int partNumber, Stream content)
         {
-            if (string.IsNullOrWhiteSpace(bucketName))
+            if (bucketName != null && string.IsNullOrWhiteSpace(bucketName))
             {
-                throw new ArgumentException("Bucket name is required", nameof(bucketName));
+                throw new ArgumentException("Bucket name cannot be empty", nameof(bucketName));
             }
 
             if (string.IsNullOrWhiteSpace(objectKey))
@@ -34,7 +34,7 @@ namespace AliOssSdk.Models.Multipart
             Content = content ?? throw new ArgumentNullException(nameof(content));
         }
 
-        public string BucketName { get; }
+        public string? BucketName { get; }
 
         public string ObjectKey { get; }
 

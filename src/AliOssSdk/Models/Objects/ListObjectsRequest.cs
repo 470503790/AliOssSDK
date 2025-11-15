@@ -4,17 +4,17 @@ namespace AliOssSdk.Models.Objects
 {
     public sealed class ListObjectsRequest
     {
-        public ListObjectsRequest(string bucketName)
+        public ListObjectsRequest(string? bucketName)
         {
-            if (string.IsNullOrWhiteSpace(bucketName))
+            if (bucketName != null && string.IsNullOrWhiteSpace(bucketName))
             {
-                throw new ArgumentException("Bucket name is required", nameof(bucketName));
+                throw new ArgumentException("Bucket name cannot be empty", nameof(bucketName));
             }
 
             BucketName = bucketName;
         }
 
-        public string BucketName { get; }
+        public string? BucketName { get; }
 
         public string? Prefix { get; set; }
 
