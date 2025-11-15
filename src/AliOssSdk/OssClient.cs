@@ -27,7 +27,12 @@ namespace AliOssSdk
         private readonly OssOperationContext _context;
 
         public OssClient(OssClientConfiguration configuration)
-            : this(configuration, new OssHttpClient(configuration), new HmacSha1RequestSigner(), NullLogger.Instance, ownsHttpClient: true)
+            : this(
+                configuration ?? throw new ArgumentNullException(nameof(configuration)),
+                configuration.HttpClient ?? new OssHttpClient(configuration),
+                configuration.RequestSigner ?? new HmacSha1RequestSigner(),
+                configuration.Logger ?? NullLogger.Instance,
+                ownsHttpClient: configuration.HttpClient == null)
         {
         }
 

@@ -1,4 +1,7 @@
 using System;
+using AliOssSdk.Http;
+using AliOssSdk.Logging;
+using AliOssSdk.Security;
 
 namespace AliOssSdk.Configuration
 {
@@ -24,10 +27,19 @@ namespace AliOssSdk.Configuration
 
         public string? DefaultRegion { get; init; }
 
+        public ILogger? Logger { get; init; }
+
+        public IOssHttpClient? HttpClient { get; init; }
+
+        public IOssRequestSigner? RequestSigner { get; init; }
+
         public OssClientConfiguration WithTimeout(TimeSpan timeout) => new(Endpoint, AccessKeyId, AccessKeySecret)
         {
             Timeout = timeout,
-            DefaultRegion = DefaultRegion
+            DefaultRegion = DefaultRegion,
+            Logger = Logger,
+            HttpClient = HttpClient,
+            RequestSigner = RequestSigner
         };
     }
 }

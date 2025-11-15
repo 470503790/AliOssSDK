@@ -64,6 +64,42 @@ public class OssClientTests
     }
 
     [Fact]
+    public async Task Constructor_UsesConfigurationOverrides()
+    {
+        var request = new OssHttpRequest(HttpMethod.Post, "/bucket/object");
+        request.Headers["x-oss-test"] = "value";
+
+        var httpResponse = new OssHttpResponse(HttpStatusCode.OK, new MemoryStream(), new Dictionary<string, string>());
+        var httpClient = new RecordingHttpClient(httpResponse);
+        var signer = new RecordingSigner();
+        var logger = new TestLogger();
+        var configuration = new OssClientConfiguration(new Uri("https://oss.example.com"), "key", "secret")
+        {
+            HttpClient = httpClient,
+            RequestSigner = signer,
+            Logger = logger
+        };
+
+        var operation = new StubOperation<string>("ConfiguredOperation", request, _ => "configured-response");
+        var client = new OssClient(configuration);
+
+        var result = await client.ExecuteAsync(operation).ConfigureAwait(false);
+
+        Assert.Equal("configured-response", result);
+        Assert.Same(request, signer.LastRequest);
+        Assert.Same(configuration, signer.LastConfiguration);
+        Assert.Single(httpClient.Requests, request);
+        Assert.Equal(new[]
+        {
+            OssLogEventType.Retry,
+            OssLogEventType.RequestStart,
+            OssLogEventType.RequestHeaders,
+            OssLogEventType.RequestBody,
+            OssLogEventType.Response
+        }, logger.Events.Select(e => e.EventType));
+    }
+
+    [Fact]
     public void Execute_UsesAsyncPipeline()
     {
         var configuration = CreateConfiguration();
