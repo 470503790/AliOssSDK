@@ -28,7 +28,12 @@ namespace AliOssSdk.Tests.Operations.Multipart
             Assert.Equal("/bucket/key", result.ResourcePath);
             Assert.Equal("upload", result.QueryParameters["uploadId"]);
             Assert.Equal("application/xml", result.ContentType);
-            using (var reader = new StreamReader(result.Content!, Encoding.UTF8, leaveOpen: true))
+            using (var reader = new StreamReader(
+                result.Content!,
+                Encoding.UTF8,
+                detectEncodingFromByteOrderMarks: false,
+                bufferSize: 1024,
+                leaveOpen: true))
             {
                 var xml = reader.ReadToEnd();
                 Assert.Contains("<Part><PartNumber>1</PartNumber><ETag>etag1</ETag></Part>", xml);
