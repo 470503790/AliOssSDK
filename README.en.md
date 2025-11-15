@@ -62,6 +62,31 @@ var client = new OssClient(configuration);
 
 Configuration can also be bound from `app.config`/`web.config` or an IOC container. At a minimum the endpoint and credentials must be provided.
 
+### Loading configuration from JSON or environment variables
+
+`AlibabaOssConfig` is a POCO that can be hydrated from a JSON file and overridden via environment variables so that secrets stay outside of source control.
+
+```json
+{
+  "endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
+  "region": "cn-hangzhou",
+  "bucket": "demo",
+  "accessKeyId": "<key>",
+  "accessKeySecret": "<secret>",
+  "sign_duration_second": 3600
+}
+```
+
+```csharp
+var alibabaConfig = AlibabaOssConfig
+    .FromJsonFile("osssettings.json")
+    .ApplyEnvironmentOverrides();
+
+var client = new OssClient(alibabaConfig.ToOssClientConfiguration());
+```
+
+When `ALI_OSS_*` environment variables (for example `ALI_OSS_ACCESS_KEY_SECRET`) are present they take precedence, which is convenient for production deployments.
+
 > **Signature Version 4** – Starting with this release the SDK signs every request with the V4 algorithm (`OSS4-HMAC-SHA256`). The signer automatically infers the region from endpoints such as `https://oss-cn-hangzhou.aliyuncs.com`. If you are using a custom domain, set `DefaultRegion` (e.g., `cn-hangzhou`) explicitly so that the credential scope can be calculated.
 
 ## Usage overview
