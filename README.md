@@ -1,37 +1,40 @@
 # AliOssSDK
 
-A lightweight, dependency-injection friendly OSS client for .NET Framework 4.8. The solution models the core Alibaba Cloud OSS operations through composable operations and a configurable HTTP layer, enabling both synchronous and asynchronous workflows.
+**简体中文 | [English](README.en.md)**
 
-## Table of contents
+一个面向 .NET Framework 4.8 的轻量级 OSS 客户端，遵循依赖注入友好的设计。解决方案通过可组合的 Operation 模式和可配置的 HTTP 层来抽象阿里云 OSS 的核心操作，确保同步与异步调用具有一致的执行流程。
 
-1. [Projects](#projects)
-2. [Prerequisites](#prerequisites)
-3. [Installation](#installation)
-4. [Configuration](#configuration)
-5. [Usage overview](#usage-overview)
-6. [Logging](#logging)
-7. [Design and extensibility](#design-and-extensibility)
-8. [Further examples](#further-examples)
+## 目录
 
-## Projects
+1. [项目组成](#项目组成)
+2. [先决条件](#先决条件)
+3. [安装](#安装)
+4. [配置](#配置)
+5. [使用概览](#使用概览)
+6. [已实现的 OSS 操作](#已实现的-oss-操作)
+7. [日志](#日志)
+8. [设计与可扩展性](#设计与可扩展性)
+9. [更多示例](#更多示例)
 
-- **AliOssSdk** – Class library that exposes abstractions such as `IOssClient`, request/response DTOs, operations, and a pluggable HTTP/signing pipeline.
+## 项目组成
 
-## Prerequisites
+- **AliOssSdk** – 类库，暴露 `IOssClient`、请求/响应 DTO、Operation 以及可插拔的 HTTP/签名管道。
 
-- **.NET Framework 4.8** – the SDK targets net48 so the developer box, CI, and deployment environments must have the reference assemblies installed.
-- **Alibaba Cloud credentials** – obtain an Access Key ID/Secret pair with permissions for the buckets you intend to manage.
-- **An OSS endpoint** – e.g., `https://oss-cn-hangzhou.aliyuncs.com`. Regional endpoints are documented in Alibaba Cloud's OSS docs.
+## 先决条件
 
-## Installation
+- **.NET Framework 4.8** – SDK 目标框架为 net48，开发机、CI 与部署环境都需要安装对应的 Reference Assemblies。
+- **阿里云 AccessKey** – 准备具备目标 Bucket 权限的 Access Key ID / Secret。
+- **OSS Endpoint** – 例如 `https://oss-cn-hangzhou.aliyuncs.com`，可在阿里云文档中查阅地域 Endpoint 列表。
 
-Install from NuGet:
+## 安装
+
+通过 NuGet 安装：
 
 ```powershell
 Install-Package AliOssSdk
 ```
 
-Or add a `<PackageReference>` inside your project file:
+或在项目文件中添加 `<PackageReference>`：
 
 ```xml
 <ItemGroup>
@@ -39,11 +42,11 @@ Or add a `<PackageReference>` inside your project file:
 </ItemGroup>
 ```
 
-If you are consuming the repository directly, add the `src/AliOssSdk/AliOssSdk.csproj` project reference to your solution and build with Visual Studio 2019+ (net48 targeting pack required).
+如果直接引用源码仓库，可在解决方案中添加 `src/AliOssSdk/AliOssSdk.csproj` 引用，并使用 Visual Studio 2019+（需安装 net48 targeting pack）进行构建。
 
-## Configuration
+## 配置
 
-The client requires the OSS endpoint, access keys, and (optionally) a default region. The `OssClientConfiguration` object centralizes these settings and can be supplied through dependency injection or manual construction.
+客户端需要 Endpoint、访问密钥以及可选的默认地域。`OssClientConfiguration` 对象集中管理这些设置，可通过依赖注入或手动创建传入。
 
 ```csharp
 var configuration = new OssClientConfiguration(
@@ -52,37 +55,64 @@ var configuration = new OssClientConfiguration(
     "<access-key-secret>")
 {
     DefaultRegion = "oss-cn-hangzhou",
-    Logger = new ConsoleLogger(),          // optional
-    HttpClient = new DefaultOssHttpClient(),// optional custom transport
-    RequestSigner = new HmacSha1RequestSigner() // optional custom signer
+    Logger = new ConsoleLogger(),          // 可选
+    HttpClient = new DefaultOssHttpClient(),// 可选自定义传输层
+    RequestSigner = new HmacSha1RequestSigner() // 可选自定义签名器
 };
 
 var client = new OssClient(configuration);
 ```
 
-Configuration can also be bound from `app.config`/`web.config` or an IOC container. At a minimum the endpoint and credentials must be provided.
+配置同样可以从 `app.config`/`web.config` 绑定，或交由 IOC 容器注入。最少需要提供 Endpoint 与凭证。
 
-## Usage overview
+## 使用概览
 
-The SDK exposes synchronous and asynchronous helpers for every operation via `IOssClient`. Operations are modeled as self-contained request objects implementing `IOssOperation<TResponse>`, making it easy to add new capabilities without altering the client surface.
+SDK 通过 `IOssClient` 为每个 Operation 提供同步 (`Execute`) 与异步 (`ExecuteAsync`) 执行入口，Operation 实现 `IOssOperation<TResponse>`，可独立扩展而无需修改客户端表面。
 
 ```csharp
-// Async
+// 异步
 var createBucket = new CreateBucketOperation(new CreateBucketRequest("example-bucket"));
 await client.ExecuteAsync(createBucket);
 
-// Sync
+// 同步
 var listBuckets = new ListBucketsOperation();
 var response = client.Execute(listBuckets);
 ```
 
-When you prefer simpler entry points, `IOssClient` exposes typed helpers such as `GetObjectAsync`, `ListObjectsAsync`, and `InitiateMultipartUploadAsync` (plus their synchronous counterparts). These methods internally create the corresponding operations and reuse the same execution pipeline, so sync and async behavior remains consistent.
+同时 `IOssClient` 还提供 `GetObjectAsync`、`ListObjectsAsync`、`InitiateMultipartUploadAsync` 及其同步同名方法等语法糖，它们内部同样创建并执行对应 Operation，保证同步/异步一致性。
 
-Common end-to-end scenarios—including listing buckets, uploading objects, downloading objects, and deleting objects—are documented with both sync and async snippets in [`docs/usage.md`](docs/usage.md). The repository also tracks parity with Aliyun's official "按功能列出的操作" catalog in [`docs/operation-coverage.md`](docs/operation-coverage.md) so it is easy to spot which APIs still need contributions.
+完整的端到端场景（列举 Bucket、上传/下载对象、删除对象等）在 [中文使用指南](docs/usage.zh-CN.md) 与 [English guide](docs/usage.md) 中提供同步与异步示例。
 
-## Logging
+## 已实现的 OSS 操作
 
-`OssClientConfiguration` accepts any implementation of `AliOssSdk.Logging.ILogger`. The SDK includes `ConsoleLogger` and `NullLogger`; you can plug in your own adapter (e.g., Serilog, log4net) by implementing the single `Log(OssLogEvent logEvent)` method.
+下表列出目前 SDK 已实现的 Operation 以及可直接调用的同步/异步方法。所有 Operation 同样支持 `Execute`/`ExecuteAsync` 通用入口。
+
+| 分类 | Operation | 同步方法 | 异步方法 |
+| --- | --- | --- | --- |
+| Bucket | `ListBuckets` | `IOssClient.ListBuckets` | `IOssClient.ListBucketsAsync` |
+| Bucket | `CreateBucket` | `IOssClient.CreateBucket` | `IOssClient.CreateBucketAsync` |
+| Bucket | `DeleteBucket` | `IOssClient.DeleteBucket` | `IOssClient.DeleteBucketAsync` |
+| Bucket | `GetBucketInfo` | `IOssClient.GetBucketInfo` | `IOssClient.GetBucketInfoAsync` |
+| Bucket | `GetBucketAcl` | `IOssClient.GetBucketAcl` | `IOssClient.GetBucketAclAsync` |
+| Bucket | `PutBucketAcl` | `IOssClient.PutBucketAcl` | `IOssClient.PutBucketAclAsync` |
+| Object | `PutObject` | `IOssClient.PutObject` | `IOssClient.PutObjectAsync` |
+| Object | `GetObject` | `IOssClient.GetObject` | `IOssClient.GetObjectAsync` |
+| Object | `DeleteObject` | `IOssClient.DeleteObject` | `IOssClient.DeleteObjectAsync` |
+| Object | `ListObjects` | `IOssClient.ListObjects` | `IOssClient.ListObjectsAsync` |
+| Object | `HeadObject` | `IOssClient.HeadObject` | `IOssClient.HeadObjectAsync` |
+| Object | `CopyObject` | `IOssClient.CopyObject` | `IOssClient.CopyObjectAsync` |
+| Multipart | `InitiateMultipartUpload` | `IOssClient.InitiateMultipartUpload` | `IOssClient.InitiateMultipartUploadAsync` |
+| Multipart | `UploadPart` | `IOssClient.UploadPart` | `IOssClient.UploadPartAsync` |
+| Multipart | `CompleteMultipartUpload` | `IOssClient.CompleteMultipartUpload` | `IOssClient.CompleteMultipartUploadAsync` |
+| Multipart | `AbortMultipartUpload` | `IOssClient.AbortMultipartUpload` | `IOssClient.AbortMultipartUploadAsync` |
+| Multipart | `ListParts` | `IOssClient.ListParts` | `IOssClient.ListPartsAsync` |
+| Multipart | `ListMultipartUploads` | `IOssClient.ListMultipartUploads` | `IOssClient.ListMultipartUploadsAsync` |
+
+待实现/可贡献的 Operation 清单请查看 [`docs/operation-coverage.md`](docs/operation-coverage.md)。
+
+## 日志
+
+`OssClientConfiguration` 接受任何 `AliOssSdk.Logging.ILogger` 实现。SDK 默认提供 `ConsoleLogger` 与 `NullLogger`，你也可以像下例一样适配 Serilog、log4net 等框架：
 
 ```csharp
 public sealed class SerilogLogger : ILogger
@@ -101,23 +131,23 @@ public sealed class SerilogLogger : ILogger
 }
 ```
 
-Set `configuration.Logger = new SerilogLogger(Log.Logger);` to enable your custom logging pipeline.
+在配置中设置 `configuration.Logger = new SerilogLogger(Log.Logger);` 即可启用自定义日志管道。
 
-## Design and extensibility
+## 设计与可扩展性
 
-AliOssSDK is intentionally small but expressive. A few core patterns underpin the implementation:
+AliOssSDK 体积小但表达力强，核心模式如下：
 
-- **Operation pattern** – `IOssOperation<TResponse>` encapsulates the request/response mapping for an OSS action. You can add new operations by placing a class under `src/AliOssSdk/Operations` and wiring the required request payload DTOs.
-- **Template method execution** – `OssClient` orchestrates serialization, signing, transport, and error handling in one place. Both `Execute` and `ExecuteAsync` reuse the same template to guarantee parity between sync and async flows.
-- **Dependency injection friendly** – Configuration, HTTP transport (`IOssHttpClient`), and signing (`IOssRequestSigner`) are injected so you can swap implementations for testing or platform-specific behavior.
-- **Logging hooks** – the `ILogger` abstraction surfaces every request lifecycle event in a consistent structure (`OssLogEvent`).
+- **Operation 模式** – `IOssOperation<TResponse>` 封装单个 OSS 行为的请求/响应映射。添加新 Operation 时只需在 `src/AliOssSdk/Operations` 下放置类并提供所需 DTO。
+- **模板方法执行** – `OssClient` 集中处理序列化、签名、网络传输与错误处理，`Execute` 与 `ExecuteAsync` 共用模板，确保同步/异步行为一致。
+- **依赖注入友好** – 配置、HTTP 传输 (`IOssHttpClient`) 与签名 (`IOssRequestSigner`) 均为可注入抽象，方便测试或替换平台特定实现。
+- **日志钩子** – `ILogger` 抽象会以统一的 `OssLogEvent` 结构曝光每个请求生命周期事件。
 
-Because of these extensibility points, future contributors can:
+因此贡献者可以：
 
-- Introduce custom transports (e.g., `HttpClient`, `RestSharp`) by implementing `IOssHttpClient`.
-- Extend signing strategies (STS, RAM roles) through `IOssRequestSigner`.
-- Add new operations without touching `OssClient`—just implement the `BuildRequest`/`ParseResponse` contract.
+- 通过实现 `IOssHttpClient` 引入自定义传输（如 `HttpClient`、`RestSharp`）。
+- 通过 `IOssRequestSigner` 扩展 STS、RAM 等签名策略。
+- 在无需修改 `OssClient` 的前提下，通过实现 `BuildRequest`/`ParseResponse` 来添加新 Operation。
 
-## Further examples
+## 更多示例
 
-For detailed walkthroughs—including bucket/object CRUD, streaming uploads, and error handling—see [`docs/usage.md`](docs/usage.md).
+包含 Bucket/Object CRUD、流式上传、错误处理等更完整的示例请参阅：[中文使用指南](docs/usage.zh-CN.md) 与 [English usage guide](docs/usage.md)。
