@@ -20,7 +20,13 @@ namespace AliOssSdk.Operations.Objects
 
         public OssHttpRequest BuildRequest(OssOperationContext context)
         {
-            var resource = $"/{_request.BucketName}/{_request.ObjectKey}";
+            var bucket = _request.BucketName ?? context.Configuration.DefaultBucketName;
+            if (string.IsNullOrWhiteSpace(bucket))
+            {
+                throw new InvalidOperationException("Bucket name is required. Provide it on the request or set OssClientConfiguration.DefaultBucketName.");
+            }
+
+            var resource = $"/{bucket}/{_request.ObjectKey}";
             return new OssHttpRequest(HttpMethod.Head, resource);
         }
 

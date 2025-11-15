@@ -46,7 +46,7 @@ Install-Package AliOssSdk
 
 ## 配置
 
-客户端需要 Endpoint、访问密钥以及可选的默认地域。`OssClientConfiguration` 对象集中管理这些设置，可通过依赖注入或手动创建传入。
+客户端需要 Endpoint、访问密钥以及可选的默认地域/默认 Bucket 等信息。`OssClientConfiguration` 对象集中管理这些设置，可通过依赖注入或手动创建传入。
 
 ```csharp
 var configuration = new OssClientConfiguration(
@@ -55,6 +55,7 @@ var configuration = new OssClientConfiguration(
     "<access-key-secret>")
 {
     DefaultRegion = "cn-hangzhou",
+    DefaultBucketName = "example-bucket",
     Logger = new ConsoleLogger(),          // 可选
     HttpClient = new DefaultOssHttpClient(),// 可选自定义传输层
     RequestSigner = new OssRequestSignerV4()    // 可选自定义签名器（SigV4）
@@ -63,7 +64,7 @@ var configuration = new OssClientConfiguration(
 var client = new OssClient(configuration);
 ```
 
-配置同样可以从 `app.config`/`web.config` 绑定，或交由 IOC 容器注入。最少需要提供 Endpoint 与凭证。
+配置同样可以从 `app.config`/`web.config` 绑定，或交由 IOC 容器注入。最少需要提供 Endpoint 与凭证。若设置了 `DefaultBucketName`，则 `HeadObjectRequest` 等请求可省略 Bucket 名并自动复用配置。
 
 > **签名算法升级**：SDK 现默认使用 V4 (`OSS4-HMAC-SHA256`) 签名。若 Endpoint 中包含地域（如 `https://oss-cn-hangzhou.aliyuncs.com`），签名器会自动解析；若使用自定义域名，请显式设置 `DefaultRegion`（例如 `cn-hangzhou`）以生成正确的 Credential Scope。
 

@@ -13,11 +13,12 @@ namespace AliOssSdk.Tests.Operations
 
     internal static class OperationTestHelpers
     {
-        public static OssOperationContext CreateContext(string? defaultRegion = null)
+        public static OssOperationContext CreateContext(string? defaultRegion = null, string? defaultBucket = null)
         {
             var configuration = new OssClientConfiguration(new Uri("https://oss.example.com"), "key", "secret")
             {
-                DefaultRegion = defaultRegion
+                DefaultRegion = defaultRegion,
+                DefaultBucketName = defaultBucket
             };
             return new OssOperationContext(configuration);
         }

@@ -41,7 +41,7 @@ namespace AliOssSdk.Tests.Configuration
         [Fact]
         public void Clone_CopiesOptionalValuesAndCollections()
         {
-            var original = new OssClientConfiguration(new Uri("https://oss-cn-hangzhou.aliyuncs.com"), "id", "secret")
+            var original = new OssClientConfiguration(new Uri("https://oss-cn-hangzhou.aliyuncs.com"), "id", "secret", "demo")
             {
                 DefaultRegion = "cn-hangzhou",
                 SecurityToken = "token"
@@ -54,6 +54,7 @@ namespace AliOssSdk.Tests.Configuration
             Assert.Equal(original.Endpoint, clone.Endpoint);
             Assert.Equal(original.DefaultRegion, clone.DefaultRegion);
             Assert.Equal(original.SecurityToken, clone.SecurityToken);
+            Assert.Equal(original.DefaultBucketName, clone.DefaultBucketName);
             Assert.NotSame(original.DefaultHeaders, clone.DefaultHeaders);
             Assert.Equal(original.DefaultHeaders, clone.DefaultHeaders);
             Assert.NotSame(original.DefaultQueryParameters, clone.DefaultQueryParameters);
@@ -70,6 +71,20 @@ namespace AliOssSdk.Tests.Configuration
             Assert.NotSame(configuration, modified);
             Assert.Equal(TimeSpan.FromSeconds(5), modified.Timeout);
             Assert.Equal(TimeSpan.FromSeconds(100), configuration.Timeout);
+        }
+
+        [Fact]
+        public void Constructor_WithDefaultBucketName_SetsProperty()
+        {
+            var configuration = new OssClientConfiguration(new Uri("https://oss-cn-hangzhou.aliyuncs.com"), "id", "secret", "demo-bucket");
+
+            Assert.Equal("demo-bucket", configuration.DefaultBucketName);
+        }
+
+        [Fact]
+        public void Constructor_ThrowsForWhitespaceDefaultBucketName()
+        {
+            Assert.Throws<ArgumentException>(() => new OssClientConfiguration(new Uri("https://oss-cn-hangzhou.aliyuncs.com"), "id", "secret", "   "));
         }
     }
 }

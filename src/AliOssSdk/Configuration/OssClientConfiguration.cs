@@ -14,17 +14,28 @@ namespace AliOssSdk.Configuration
         private static readonly IEqualityComparer<string> HeaderComparer = StringComparer.OrdinalIgnoreCase;
 
         public OssClientConfiguration(Uri endpoint, string accessKeyId, string accessKeySecret)
+            : this(endpoint, accessKeyId, accessKeySecret, defaultBucketName: null)
+        {
+        }
+
+        public OssClientConfiguration(Uri endpoint, string accessKeyId, string accessKeySecret, string? defaultBucketName)
         {
             Endpoint = ValidateEndpoint(endpoint);
             AccessKeyId = ValidateRequired(accessKeyId, nameof(accessKeyId));
             AccessKeySecret = ValidateRequired(accessKeySecret, nameof(accessKeySecret));
+            DefaultBucketName = ValidateBucketName(defaultBucketName);
             Timeout = TimeSpan.FromSeconds(100);
             DefaultHeaders = new Dictionary<string, string>(HeaderComparer);
             DefaultQueryParameters = new Dictionary<string, string>(HeaderComparer);
         }
 
         public OssClientConfiguration(string endpoint, string accessKeyId, string accessKeySecret)
-            : this(ParseEndpoint(endpoint), accessKeyId, accessKeySecret)
+            : this(ParseEndpoint(endpoint), accessKeyId, accessKeySecret, defaultBucketName: null)
+        {
+        }
+
+        public OssClientConfiguration(string endpoint, string accessKeyId, string accessKeySecret, string? defaultBucketName)
+            : this(ParseEndpoint(endpoint), accessKeyId, accessKeySecret, defaultBucketName)
         {
         }
 
@@ -39,6 +50,7 @@ namespace AliOssSdk.Configuration
             Logger = source.Logger;
             HttpClient = source.HttpClient;
             RequestSigner = source.RequestSigner;
+            DefaultBucketName = source.DefaultBucketName;
             DefaultHeaders = new Dictionary<string, string>(source.DefaultHeaders, HeaderComparer);
             DefaultQueryParameters = new Dictionary<string, string>(source.DefaultQueryParameters, HeaderComparer);
         }
@@ -52,6 +64,8 @@ namespace AliOssSdk.Configuration
         public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(100);
 
         public string? DefaultRegion { get; set; }
+
+        public string? DefaultBucketName { get; set; }
 
         public string? SecurityToken { get; set; }
 
@@ -121,6 +135,21 @@ namespace AliOssSdk.Configuration
             }
 
             return value;
+        }
+
+        private static string? ValidateBucketName(string? bucketName)
+        {
+            if (bucketName == null)
+            {
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(bucketName))
+            {
+                throw new ArgumentException("Bucket name cannot be empty when provided.", nameof(bucketName));
+            }
+
+            return bucketName;
         }
     }
 }

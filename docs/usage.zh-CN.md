@@ -11,6 +11,7 @@ var configuration = new OssClientConfiguration(
     Environment.GetEnvironmentVariable("ALI_OSS_ACCESS_KEY_SECRET"))
 {
     DefaultRegion = "oss-cn-hangzhou",
+    DefaultBucketName = "my-demo-bucket",
     Logger = new ConsoleLogger()
 };
 
@@ -156,14 +157,16 @@ var copyResult = client.CopyObject(new CopyObjectRequest(
 **异步**
 
 ```csharp
-var headResponse = await client.HeadObjectAsync(new HeadObjectRequest("my-demo-bucket", "images/logo.png"));
+var headResponse = await client.HeadObjectAsync(new HeadObjectRequest("images/logo.png"));
 Console.WriteLine($"Content-Length: {headResponse.ContentLength}, Content-Type: {headResponse.ContentType}");
 ```
 
 **同步**
 
 ```csharp
-var metadata = client.HeadObject(new HeadObjectRequest("my-demo-bucket", "images/logo.png"));
+var metadata = client.HeadObject(new HeadObjectRequest("images/logo.png"));
+
+> 小贴士：设置 `OssClientConfiguration.DefaultBucketName` 后即可在 `HeadObjectRequest` 中省略 Bucket 名，若需要访问其他桶则显式传入。
 ```
 
 ## 使用 OssRequestException 进行错误处理
