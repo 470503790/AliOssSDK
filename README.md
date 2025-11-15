@@ -82,6 +82,8 @@ var client = new OssClient(configuration);
 
 可以在启动代码中读取该文件，并允许使用 `ALI_OSS_` 前缀的环境变量覆写同名字段：
 
+> 如果配置中未提供 `endpoint` 或值为空，SDK 会自动回落到默认域名 `https://oss-cn-hangzhou.aliyuncs.com`。
+
 ```csharp
 var alibabaConfig = AlibabaOssConfig
     .FromJsonFile("osssettings.json")

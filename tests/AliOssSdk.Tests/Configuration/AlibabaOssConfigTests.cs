@@ -78,6 +78,21 @@ namespace AliOssSdk.Tests.Configuration
         }
 
         [Fact]
+        public void ToOssClientConfiguration_UsesDefaultEndpoint_WhenEmpty()
+        {
+            var config = new AlibabaOssConfig
+            {
+                Endpoint = "  ",
+                AccessKeyId = "key",
+                AccessKeySecret = "secret"
+            };
+
+            var ossConfig = config.ToOssClientConfiguration();
+
+            Assert.Equal(new Uri(AlibabaOssConfig.DefaultEndpoint), ossConfig.Endpoint);
+        }
+
+        [Fact]
         public void FromJsonFile_ReadsFromDisk()
         {
             var tempFile = Path.GetTempFileName();
