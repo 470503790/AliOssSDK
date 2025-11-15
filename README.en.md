@@ -43,7 +43,7 @@ If you are consuming the repository directly, add the `src/AliOssSdk/AliOssSdk.c
 
 ## Configuration
 
-The client requires the OSS endpoint, access keys, and (optionally) a default region. The `OssClientConfiguration` object centralizes these settings and can be supplied through dependency injection or manual construction.
+The client requires the OSS endpoint, access keys, and (optionally) default values such as the region or bucket. The `OssClientConfiguration` object centralizes these settings and can be supplied through dependency injection or manual construction.
 
 ```csharp
 var configuration = new OssClientConfiguration(
@@ -52,6 +52,7 @@ var configuration = new OssClientConfiguration(
     "<access-key-secret>")
 {
     DefaultRegion = "cn-hangzhou",
+    DefaultBucketName = "example-bucket",
     Logger = new ConsoleLogger(),          // optional
     HttpClient = new DefaultOssHttpClient(),// optional custom transport
     RequestSigner = new OssRequestSignerV4()    // optional custom signer (SigV4)
@@ -60,7 +61,7 @@ var configuration = new OssClientConfiguration(
 var client = new OssClient(configuration);
 ```
 
-Configuration can also be bound from `app.config`/`web.config` or an IOC container. At a minimum the endpoint and credentials must be provided.
+Configuration can also be bound from `app.config`/`web.config` or an IOC container. At a minimum the endpoint and credentials must be provided. When `DefaultBucketName` is set, helpers such as `HeadObjectRequest` can omit the bucket name and reuse the configured value.
 
 > **Signature Version 4** – Starting with this release the SDK signs every request with the V4 algorithm (`OSS4-HMAC-SHA256`). The signer automatically infers the region from endpoints such as `https://oss-cn-hangzhou.aliyuncs.com`. If you are using a custom domain, set `DefaultRegion` (e.g., `cn-hangzhou`) explicitly so that the credential scope can be calculated.
 

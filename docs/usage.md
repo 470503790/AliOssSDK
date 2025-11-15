@@ -11,6 +11,7 @@ var configuration = new OssClientConfiguration(
     Environment.GetEnvironmentVariable("ALI_OSS_ACCESS_KEY_SECRET"))
 {
     DefaultRegion = "oss-cn-hangzhou",
+    DefaultBucketName = "my-demo-bucket",
     Logger = new ConsoleLogger()
 };
 
@@ -191,15 +192,18 @@ var copyResult = client.CopyObject(new CopyObjectRequest(
 ## Checking object metadata (HEAD)
 
 ```csharp
-var headResponse = await client.HeadObjectAsync(new HeadObjectRequest("my-demo-bucket", "images/logo.png"));
+var headResponse = await client.HeadObjectAsync(new HeadObjectRequest("images/logo.png"));
 Console.WriteLine($"Content-Length: {headResponse.ContentLength}, Content-Type: {headResponse.ContentType}");
 ```
 
 **Sync**
 
 ```csharp
-var metadata = client.HeadObject(new HeadObjectRequest("my-demo-bucket", "images/logo.png"));
+var metadata = client.HeadObject(new HeadObjectRequest("images/logo.png"));
 ```
+
+> Tip: When `OssClientConfiguration.DefaultBucketName` is set you can omit the bucket name on `HeadObjectRequest`. Pass the buc
+ket explicitly if you need to target a different bucket.
 
 ## Error handling with OssRequestException
 

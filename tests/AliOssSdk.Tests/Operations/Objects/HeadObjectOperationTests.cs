@@ -24,6 +24,24 @@ namespace AliOssSdk.Tests.Operations.Objects
         }
 
         [Fact]
+        public void BuildRequest_UsesDefaultBucket_WhenNotProvidedOnRequest()
+        {
+            var operation = new HeadObjectOperation(new HeadObjectRequest("key"));
+
+            var result = operation.BuildRequest(OperationTestHelpers.CreateContext(defaultBucket: "fallback"));
+
+            Assert.Equal("/fallback/key", result.ResourcePath);
+        }
+
+        [Fact]
+        public void BuildRequest_Throws_WhenBucketMissing()
+        {
+            var operation = new HeadObjectOperation(new HeadObjectRequest("key"));
+
+            Assert.Throws<InvalidOperationException>(() => operation.BuildRequest(OperationTestHelpers.CreateContext()));
+        }
+
+        [Fact]
         public void ParseResponse_ReturnsMetadata()
         {
             var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
