@@ -68,6 +68,8 @@ var client = new OssClient(configuration);
 
 > **签名算法升级**：SDK 现默认使用 V4 (`OSS4-HMAC-SHA256`) 签名。若 Endpoint 中包含地域（如 `https://oss-cn-hangzhou.aliyuncs.com`），签名器会自动解析；若使用自定义域名，请显式设置 `DefaultRegion`（例如 `cn-hangzhou`）以生成正确的 Credential Scope。
 
+> **虚拟主机风格支持**：SDK 支持路径风格（`https://oss-cn-hangzhou.aliyuncs.com/bucket/object`）和虚拟主机风格（`https://bucket.oss-cn-hangzhou.aliyuncs.com/object`）两种 Endpoint 格式。SDK 会根据 Endpoint 自动检测使用哪种风格，也可通过 `UseVirtualHostStyle` 属性显式设置。详见 [虚拟主机风格端点文档](docs/virtual-host-style-endpoints.md)。
+
 ## 使用概览
 
 SDK 通过 `IOssClient` 为每个 Operation 提供同步 (`Execute`) 与异步 (`ExecuteAsync`) 执行入口，Operation 实现 `IOssOperation<TResponse>`，可独立扩展而无需修改客户端表面。
