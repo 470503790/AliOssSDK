@@ -60,5 +60,26 @@ namespace AliOssSdk.Tests.Security
             var authorization = request.Headers["Authorization"];
             Assert.Contains("/cn-qingdao/", authorization);
         }
+
+        [Fact]
+        public void Sign_HandlesVirtualHostStyleEndpoint()
+        {
+            var request = new OssHttpRequest(HttpMethod.Head, "/folder/object.txt");
+            var configuration = new OssClientConfiguration(
+                new Uri("https://mybucket.oss-cn-hangzhou.aliyuncs.com"),
+                "testAccessKey",
+                "testSecretKey")
+            {
+                UseVirtualHostStyle = true
+            };
+
+            var signer = new OssRequestSignerV4(() => FixedTime);
+            signer.Sign(request, configuration);
+
+            Assert.Equal("mybucket.oss-cn-hangzhou.aliyuncs.com", request.Headers["Host"]);
+            Assert.Equal("UNSIGNED-PAYLOAD", request.Headers["x-oss-content-sha256"]);
+            Assert.Equal("20240102T030405Z", request.Headers["x-oss-date"]);
+            Assert.Contains("OSS4-HMAC-SHA256", request.Headers["Authorization"]);
+        }
     }
 }

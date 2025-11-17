@@ -22,7 +22,7 @@ namespace AliOssSdk.Operations.Multipart
         public OssHttpRequest BuildRequest(OssOperationContext context)
         {
             var bucket = context.ResolveBucketName(_request.BucketName);
-            var resource = $"/{bucket}";
+            var resource = context.BuildResourcePath(bucket, "");
             var httpRequest = new OssHttpRequest(HttpMethod.Get, resource);
             httpRequest.QueryParameters["uploads"] = string.Empty;
 

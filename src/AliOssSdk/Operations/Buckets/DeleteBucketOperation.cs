@@ -19,7 +19,7 @@ namespace AliOssSdk.Operations.Buckets
         public OssHttpRequest BuildRequest(OssOperationContext context)
         {
             var bucket = context.ResolveBucketName(_request.BucketName);
-            var resource = $"/{bucket}";
+            var resource = context.BuildBucketResourcePath(bucket);
             return new OssHttpRequest(HttpMethod.Delete, resource);
         }
 
