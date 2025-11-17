@@ -1,0 +1,5 @@
+/.vs
+/src/AliOssSdk/bin
+/src/AliOssSdk/obj
+/tests/AliOssSdk.Tests/bin
+/tests/AliOssSdk.Tests/obj
