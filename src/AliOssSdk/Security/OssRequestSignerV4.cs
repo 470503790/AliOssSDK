@@ -252,6 +252,7 @@ namespace AliOssSdk.Security
         private static bool IsDefaultSignedHeader(string lowerKey)
         {
             return lowerKey == "content-type" ||
+                   lowerKey == "host" ||
                    lowerKey == "content-md5" ||
                    lowerKey.StartsWith("x-oss-");
         }

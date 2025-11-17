@@ -31,7 +31,7 @@ namespace AliOssSdk.Tests.Security
             Assert.Equal("20240102T030405Z", request.Headers["x-oss-date"]);
             Assert.Equal("Tue, 02 Jan 2024 03:04:05 GMT", request.Headers["Date"]);
 
-            var expected = "OSS4-HMAC-SHA256 Credential=testAccessKey/20240102/cn-hangzhou/oss/aliyun_v4_request,Signature=83a19af1da258497520a98c74702c532704bea33ea6a435368dd15d5ff10713e";
+            var expected = "OSS4-HMAC-SHA256 Credential=testAccessKey/20240102/cn-hangzhou/oss/aliyun_v4_request,Signature=a81a75f3d8bb1ecb9a8c3628960bd44f8b1ec9670d0abb8d8a884d1c7a28399b";
             Assert.Equal(expected, request.Headers["Authorization"]);
         }
 
