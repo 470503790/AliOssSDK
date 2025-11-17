@@ -24,6 +24,36 @@ namespace AliOssSdk.Tests.Operations.Objects
         }
 
         [Fact]
+        public void BuildRequest_UsesVirtualHostStyle_WhenConfigured()
+        {
+            var operation = new HeadObjectOperation(new HeadObjectRequest("mybucket", "folder/file.txt"));
+            var context = OperationTestHelpers.CreateContext(
+                endpoint: "https://mybucket.oss-cn-hangzhou.aliyuncs.com",
+                defaultBucket: "mybucket"
+            );
+
+            var result = operation.BuildRequest(context);
+
+            Assert.Equal(HttpMethod.Head, result.Method);
+            Assert.Equal("/folder/file.txt", result.ResourcePath);
+        }
+
+        [Fact]
+        public void BuildRequest_UsesPathStyle_WhenConfigured()
+        {
+            var operation = new HeadObjectOperation(new HeadObjectRequest("mybucket", "folder/file.txt"));
+            var context = OperationTestHelpers.CreateContext(
+                endpoint: "https://oss-cn-hangzhou.aliyuncs.com",
+                defaultBucket: "mybucket"
+            );
+
+            var result = operation.BuildRequest(context);
+
+            Assert.Equal(HttpMethod.Head, result.Method);
+            Assert.Equal("/mybucket/folder/file.txt", result.ResourcePath);
+        }
+
+        [Fact]
         public void BuildRequest_UsesDefaultBucket_WhenNotProvidedOnRequest()
         {
             var operation = new HeadObjectOperation(new HeadObjectRequest("key"));

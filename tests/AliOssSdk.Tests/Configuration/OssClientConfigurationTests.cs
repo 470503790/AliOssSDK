@@ -86,5 +86,42 @@ namespace AliOssSdk.Tests.Configuration
         {
             Assert.Throws<ArgumentException>(() => new OssClientConfiguration(new Uri("https://oss-cn-hangzhou.aliyuncs.com"), "id", "secret", "   "));
         }
+
+        [Theory]
+        [InlineData("https://oss-cn-hangzhou.aliyuncs.com", "mybucket", false)] // Path-style
+        [InlineData("https://mybucket.oss-cn-hangzhou.aliyuncs.com", "mybucket", true)] // Virtual-host
+        [InlineData("https://rca7.oss-cn-guangzhou.aliyuncs.com", "rca7", true)] // Virtual-host
+        [InlineData("https://custom-domain.com", "mybucket", false)] // Custom domain defaults to path-style
+        public void IsVirtualHostStyle_DetectsCorrectly(string endpoint, string bucket, bool expected)
+        {
+            var configuration = new OssClientConfiguration(endpoint, "id", "secret")
+            {
+                DefaultBucketName = bucket
+            };
+
+            Assert.Equal(expected, configuration.IsVirtualHostStyle(bucket));
+        }
+
+        [Fact]
+        public void IsVirtualHostStyle_RespectsExplicitSetting()
+        {
+            var configuration = new OssClientConfiguration("https://oss-cn-hangzhou.aliyuncs.com", "id", "secret")
+            {
+                UseVirtualHostStyle = true
+            };
+
+            Assert.True(configuration.IsVirtualHostStyle("mybucket"));
+        }
+
+        [Fact]
+        public void IsVirtualHostStyle_ExplicitSettingOverridesAutoDetection()
+        {
+            var configuration = new OssClientConfiguration("https://mybucket.oss-cn-hangzhou.aliyuncs.com", "id", "secret")
+            {
+                UseVirtualHostStyle = false // Explicitly set to path-style even though endpoint looks like virtual-host
+            };
+
+            Assert.False(configuration.IsVirtualHostStyle("mybucket"));
+        }
     }
 }

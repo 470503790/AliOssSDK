@@ -65,6 +65,8 @@ Configuration can also be bound from `app.config`/`web.config` or an IOC contain
 
 > **Signature Version 4** – Starting with this release the SDK signs every request with the V4 algorithm (`OSS4-HMAC-SHA256`). The signer automatically infers the region from endpoints such as `https://oss-cn-hangzhou.aliyuncs.com`. If you are using a custom domain, set `DefaultRegion` (e.g., `cn-hangzhou`) explicitly so that the credential scope can be calculated.
 
+> **Virtual-Host Style Support** – The SDK supports both path-style (`https://oss-cn-hangzhou.aliyuncs.com/bucket/object`) and virtual-host style (`https://bucket.oss-cn-hangzhou.aliyuncs.com/object`) endpoints. The SDK automatically detects which style is being used based on the endpoint URL, or you can explicitly set it via the `UseVirtualHostStyle` property. See the [Virtual-Host Style Endpoints documentation](docs/virtual-host-style-endpoints.md) for details.
+
 ## Usage overview
 
 The SDK exposes synchronous and asynchronous helpers for every operation via `IOssClient`. Operations are modeled as self-contained request objects implementing `IOssOperation<TResponse>`, making it easy to add new capabilities without altering the client surface.

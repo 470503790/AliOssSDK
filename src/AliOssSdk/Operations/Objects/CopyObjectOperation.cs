@@ -23,9 +23,9 @@ namespace AliOssSdk.Operations.Objects
             var destinationBucket = context.ResolveBucketName(_request.DestinationBucket ?? _request.SourceBucket);
             var sourceBucket = context.ResolveBucketName(_request.SourceBucket ?? _request.DestinationBucket);
 
-            var resource = $"/{destinationBucket}/{_request.DestinationKey}";
+            var resource = context.BuildResourcePath(destinationBucket, _request.DestinationKey);
             var httpRequest = new OssHttpRequest(HttpMethod.Put, resource);
-            var source = $"/{sourceBucket}/{_request.SourceKey}";
+            var source = context.BuildResourcePath(sourceBucket, _request.SourceKey);
             httpRequest.Headers["x-oss-copy-source"] = source;
             return httpRequest;
         }

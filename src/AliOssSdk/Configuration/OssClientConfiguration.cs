@@ -51,6 +51,7 @@ namespace AliOssSdk.Configuration
             HttpClient = source.HttpClient;
             RequestSigner = source.RequestSigner;
             DefaultBucketName = source.DefaultBucketName;
+            UseVirtualHostStyle = source.UseVirtualHostStyle;
             DefaultHeaders = new Dictionary<string, string>(source.DefaultHeaders, HeaderComparer);
             DefaultQueryParameters = new Dictionary<string, string>(source.DefaultQueryParameters, HeaderComparer);
         }
@@ -68,6 +69,15 @@ namespace AliOssSdk.Configuration
         public string? DefaultBucketName { get; set; }
 
         public string? SecurityToken { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to use virtual-host style addressing.
+        /// When true, the bucket name is expected in the hostname (e.g., bucket.oss-region.aliyuncs.com/object),
+        /// and resource paths will not include the bucket name.
+        /// When false (default), path-style addressing is used (e.g., oss-region.aliyuncs.com/bucket/object).
+        /// If not explicitly set, this is auto-detected based on the endpoint hostname.
+        /// </summary>
+        public bool? UseVirtualHostStyle { get; set; }
 
         public ILogger? Logger { get; set; }
 
@@ -89,6 +99,52 @@ namespace AliOssSdk.Configuration
             var clone = Clone();
             clone.Timeout = timeout;
             return clone;
+        }
+
+        /// <summary>
+        /// Determines whether the endpoint is using virtual-host style addressing.
+        /// Virtual-host style means the bucket name is in the hostname (e.g., bucket.oss-region.aliyuncs.com).
+        /// Path-style means the bucket name is in the path (e.g., oss-region.aliyuncs.com/bucket).
+        /// </summary>
+        public bool IsVirtualHostStyle(string? bucketName = null)
+        {
+            // If explicitly set, use that value
+            if (UseVirtualHostStyle.HasValue)
+            {
+                return UseVirtualHostStyle.Value;
+            }
+
+            // Auto-detect based on endpoint hostname
+            var host = Endpoint.Host;
+            
+            // Check if hostname starts with a bucket name followed by .oss-
+            // Pattern: {bucket}.oss-{region}.aliyuncs.com
+            var bucket = bucketName ?? DefaultBucketName;
+            if (!string.IsNullOrEmpty(bucket))
+            {
+                if (host.StartsWith(bucket + ".oss-", StringComparison.OrdinalIgnoreCase) ||
+                    host.StartsWith(bucket + ".", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            // Check if the hostname contains .oss- pattern without bucket prefix
+            // This indicates path-style (e.g., oss-cn-hangzhou.aliyuncs.com)
+            if (host.StartsWith("oss-", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            // If hostname has multiple parts and contains oss-, assume virtual-host
+            // (e.g., something.oss-region.aliyuncs.com)
+            if (host.Contains(".oss-"))
+            {
+                return true;
+            }
+
+            // Default to path-style for backward compatibility
+            return false;
         }
 
         private static Uri ValidateEndpoint(Uri endpoint)
