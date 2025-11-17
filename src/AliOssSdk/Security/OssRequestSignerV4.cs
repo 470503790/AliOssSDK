@@ -15,6 +15,7 @@ namespace AliOssSdk.Security
         private const string AlgorithmName = "OSS4-HMAC-SHA256";
         private const string RequestType = "aliyun_v4_request";
         private const string ServiceName = "oss";
+        private const string Rfc822DateFormat = @"ddd, dd MMM yyyy HH:mm:ss \G\M\T";
         private readonly Func<DateTimeOffset> _clock;
 
         public OssRequestSignerV4()
@@ -48,13 +49,16 @@ namespace AliOssSdk.Security
             var now = _clock().UtcDateTime;
             var requestDate = now.ToString("yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture);
             var requestDateScope = now.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
+            var datetimeGmt = FormatRfc822Date(now);
 
             var hostHeader = BuildHostHeader(configuration.Endpoint);
             request.Headers["Host"] = hostHeader;
             request.Headers["x-oss-date"] = requestDate;
+            request.Headers["Date"] = datetimeGmt;
             request.Headers["x-oss-content-sha256"] = PayloadHashPlaceholder;
 
-            var canonicalRequest = BuildCanonicalRequest(request);
+            var additionalHeaders = GetAdditionalHeaders(request.Headers);
+            var canonicalRequest = BuildCanonicalRequest(request, additionalHeaders);
             var canonicalRequestHash = HashHex(canonicalRequest);
             var credentialScope = string.Join("/", new[] { requestDateScope, region, ServiceName, RequestType });
             var stringToSign = string.Join("\n", new[]
@@ -67,9 +71,16 @@ namespace AliOssSdk.Security
 
             var signingKey = DeriveSigningKey(configuration.AccessKeySecret, requestDateScope, region);
             var signature = ToHex(HmacSha256(signingKey, stringToSign));
-            var signedHeaders = GetSignedHeaders(request.Headers);
 
-            request.Headers["Authorization"] = $"{AlgorithmName} Credential={configuration.AccessKeyId}/{credentialScope},SignedHeaders={signedHeaders},Signature={signature}";
+            var authorizationBuilder = new StringBuilder();
+            authorizationBuilder.AppendFormat("{0} Credential={1}/{2}", AlgorithmName, configuration.AccessKeyId, credentialScope);
+            if (additionalHeaders.Count > 0)
+            {
+                authorizationBuilder.AppendFormat(",AdditionalHeaders={0}", string.Join(";", additionalHeaders));
+            }
+            authorizationBuilder.AppendFormat(",Signature={0}", signature);
+
+            request.Headers["Authorization"] = authorizationBuilder.ToString();
         }
 
         private static string ResolveRegion(OssClientConfiguration configuration)
@@ -118,12 +129,17 @@ namespace AliOssSdk.Security
             return trimmed.ToLowerInvariant();
         }
 
-        private static string BuildCanonicalRequest(OssHttpRequest request)
+        private static string FormatRfc822Date(DateTime time)
+        {
+            return time.ToUniversalTime().ToString(Rfc822DateFormat, CultureInfo.InvariantCulture);
+        }
+
+        private static string BuildCanonicalRequest(OssHttpRequest request, List<string> additionalHeaders)
         {
             var canonicalUri = BuildCanonicalResourcePath(request.ResourcePath);
             var canonicalQuery = BuildCanonicalQueryString(request.QueryParameters);
-            var canonicalHeaders = BuildCanonicalHeaders(request.Headers);
-            var signedHeaders = GetSignedHeaders(request.Headers);
+            var canonicalHeaders = BuildCanonicalHeaders(request.Headers, additionalHeaders);
+            var additionalHeadersString = string.Join(";", additionalHeaders);
 
             return string.Join("\n", new[]
             {
@@ -131,7 +147,7 @@ namespace AliOssSdk.Security
                 canonicalUri,
                 canonicalQuery,
                 canonicalHeaders,
-                signedHeaders,
+                additionalHeadersString,
                 PayloadHashPlaceholder
             });
         }
@@ -194,36 +210,58 @@ namespace AliOssSdk.Security
             return builder.ToString();
         }
 
-        private static string BuildCanonicalHeaders(IDictionary<string, string> headers)
+        private static string BuildCanonicalHeaders(IDictionary<string, string> headers, List<string> additionalHeaders)
         {
-            var sorted = new SortedDictionary<string, string>(StringComparer.Ordinal);
+            if (headers.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var addHeadersMap = new Dictionary<string, string>();
+            foreach (var header in additionalHeaders)
+            {
+                addHeadersMap[header.ToLowerInvariant()] = string.Empty;
+            }
+
+            var sortedHeaderMap = new SortedDictionary<string, string>(StringComparer.Ordinal);
+
             foreach (var header in headers)
             {
-                var name = header.Key.Trim().ToLowerInvariant();
-                var value = NormalizeWhitespace(header.Value);
-                sorted[name] = value;
+                if (header.Value == null)
+                {
+                    continue;
+                }
+
+                var lowerKey = header.Key.ToLowerInvariant();
+
+                if (IsDefaultSignedHeader(lowerKey) || addHeadersMap.ContainsKey(lowerKey))
+                {
+                    sortedHeaderMap[lowerKey] = header.Value.Trim();
+                }
             }
 
             var builder = new StringBuilder();
-            foreach (var header in sorted)
+            foreach (var header in sortedHeaderMap)
             {
-                builder.Append(header.Key);
-                builder.Append(':');
-                builder.Append(header.Value);
-                builder.Append('\n');
+                builder.AppendFormat("{0}:{1}\n", header.Key, header.Value.Trim());
             }
 
             return builder.ToString();
         }
 
-        private static string GetSignedHeaders(IDictionary<string, string> headers)
+        private static bool IsDefaultSignedHeader(string lowerKey)
         {
-            var sorted = headers
-                .Select(header => header.Key.Trim().ToLowerInvariant())
-                .OrderBy(name => name, StringComparer.Ordinal)
-                .ToArray();
+            return lowerKey == "content-type" ||
+                   lowerKey == "content-md5" ||
+                   lowerKey.StartsWith("x-oss-");
+        }
 
-            return string.Join(";", sorted);
+        private static List<string> GetAdditionalHeaders(IDictionary<string, string> headers)
+        {
+            // In the current implementation, we don't support user-specified additional headers
+            // Only default signed headers (content-type, content-md5, x-oss-*) are included
+            // This matches the reference implementation when no additional headers are specified
+            return new List<string>();
         }
 
         private static string NormalizeWhitespace(string value)

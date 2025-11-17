@@ -29,8 +29,9 @@ namespace AliOssSdk.Tests.Security
             Assert.Equal("oss-cn-hangzhou.aliyuncs.com", request.Headers["Host"]);
             Assert.Equal("UNSIGNED-PAYLOAD", request.Headers["x-oss-content-sha256"]);
             Assert.Equal("20240102T030405Z", request.Headers["x-oss-date"]);
+            Assert.Equal("Tue, 02 Jan 2024 03:04:05 GMT", request.Headers["Date"]);
 
-            var expected = "OSS4-HMAC-SHA256 Credential=testAccessKey/20240102/cn-hangzhou/oss/aliyun_v4_request,SignedHeaders=content-type;host;x-oss-content-sha256;x-oss-date,Signature=bde4fbf59bbbe78b7204a89904e80a899ac3385c9a172624f7af9eca4d676197";
+            var expected = "OSS4-HMAC-SHA256 Credential=testAccessKey/20240102/cn-hangzhou/oss/aliyun_v4_request,Signature=83a19af1da258497520a98c74702c532704bea33ea6a435368dd15d5ff10713e";
             Assert.Equal(expected, request.Headers["Authorization"]);
         }
 
